@@ -1765,10 +1765,21 @@ class LayerConverter:
             max_sizes = [self.klayer.max_size]
         else:
             max_sizes = None
+        aspect_ratios = []
+        ratios = map((lambda x: float(x)), self.klayer.aspect_ratios)
+        if max_sizes:
+            ratios = ratios[2: ]
+        else:
+            ratios = ratios[1: ]
+        if self.klayer.flip:
+            for i in range(0, len(ratios)):
+                if i % 2 == 0:
+                    aspect_ratios.append(ratios[i])
+        else:
+            aspect_ratios = ratios
         blayer = BLayer.PriorBox(min_sizes=[self.klayer.min_size],
                                  max_sizes=max_sizes,
-                                 aspect_ratios=[2.0, 3.0],
-                                 # aspect_ratios=map((lambda x: float(x)), self.klayer.aspect_ratios),
+                                 aspect_ratios=aspect_ratios,
                                  is_flip=self.klayer.flip,
                                  is_clip=self.klayer.clip,
                                  variances=map((lambda x: float(x)), self.klayer.variances),

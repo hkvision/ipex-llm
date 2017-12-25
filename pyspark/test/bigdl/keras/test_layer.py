@@ -761,6 +761,9 @@ class TestLayer(BigDLTestCase):
                              max_size=168.0, aspect_ratios=[2, 3],
                              variances=[0.1, 0.1, 0.2, 0.2], input_shape=(5, 6, 6))
             self.modelTestSingleLayer(input_data, layer)
+            layer2 = PriorBox(img_size=(300, 300), min_size=30.0, aspect_ratios=[2],
+                              variances=[0.1, 0.1, 0.2, 0.2], input_shape=(5, 6, 6))
+            self.modelTestSingleLayer(input_data, layer2)
 
     def test_normalize(self):
         from keras.utils.generic_utils import CustomObjectScope
