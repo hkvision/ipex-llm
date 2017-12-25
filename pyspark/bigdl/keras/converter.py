@@ -1781,6 +1781,12 @@ class LayerConverter:
         bmodel.add(BLayer.JoinTable(2, 2))
         return bmodel
 
+    def create_normalize(self):
+        blayer = BLayer.NormalizeScale(p=2.0,
+                                       scale=float(self.klayer.scale),
+                                       size=[1, 16, 16, 16])
+        return blayer
+
     def combo_parameter_layer(self, blayer, config):
         blayer.set_name(config["name"])
         if hasattr(blayer, "set_init_method"):

@@ -760,7 +760,28 @@ class TestLayer(BigDLTestCase):
             layer = PriorBox(img_size=(300, 300), min_size=114.0,
                              max_size=168.0, aspect_ratios=[2, 3],
                              variances=[0.1, 0.1, 0.2, 0.2], input_shape=(5, 6, 6))
-            self.modelTestSingleLayer(input_data, layer, rtol=1e-5, atol=1e-5)
+            self.modelTestSingleLayer(input_data, layer)
+
+    def test_normalize(self):
+        from keras.utils.generic_utils import CustomObjectScope
+        input_data = np.random.random([2, 16, 16, 16])
+        from bigdl.ssd.ssd_layers import Normalize
+        with CustomObjectScope({"Normalize": Normalize}):
+            layer = Normalize(20, input_shape=(16, 16, 16))
+            self.modelTestSingleLayer(input_data, layer)
+        # kseq = Sequential()
+        # kseq.add(layer)
+        # keras_output = kseq.predict(input_data)
+        #
+        # from bigdl.nn.layer import NormalizeScale
+        # blayer = NormalizeScale(2.0, 20.0, [1, 1, 1, 1])
+        # bigdl_output = blayer.forward(input_data)
+        # print(input_data)
+        # print(keras_output)
+        # print(keras_output.shape)
+        # print(bigdl_output)
+        # print(bigdl_output.shape)
+        # np.testing.assert_allclose(keras_output, bigdl_output, rtol=1e-5, atol=1e-5)
 
 
 if __name__ == "__main__":
