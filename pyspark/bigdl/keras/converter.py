@@ -1760,6 +1760,27 @@ class LayerConverter:
         else:
             return blayer
 
+    def create_priorbox(self):
+        if self.klayer.max_size:
+            max_sizes = [self.klayer.max_size]
+        else:
+            max_sizes = None
+        blayer = BLayer.PriorBox(min_sizes=[self.klayer.min_size],
+                                 max_sizes=max_sizes,
+                                 aspect_ratios=[2.0, 3.0],
+                                 # aspect_ratios=map((lambda x: float(x)), self.klayer.aspect_ratios),
+                                 is_flip=self.klayer.flip,
+                                 is_clip=self.klayer.clip,
+                                 variances=map((lambda x: float(x)), self.klayer.variances),
+                                 img_h=self.klayer.img_size[1],
+                                 img_w=self.klayer.img_size[0])
+        bmodel = BLayer.Sequential()
+        bmodel.add(blayer)
+        bmodel.add(BLayer.InferReshape([2, -1, 4], True))
+        bmodel.add(BLayer.SplitTable(2))
+        bmodel.add(BLayer.JoinTable(2, 2))
+        return bmodel
+
     def combo_parameter_layer(self, blayer, config):
         blayer.set_name(config["name"])
         if hasattr(blayer, "set_init_method"):
