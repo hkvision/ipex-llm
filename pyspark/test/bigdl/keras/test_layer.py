@@ -760,25 +760,6 @@ class TestLayer(BigDLTestCase):
             layer = PriorBox(img_size=(300, 300), min_size=114.0,
                              max_size=168.0, aspect_ratios=[2, 3],
                              variances=[0.1, 0.1, 0.2, 0.2], input_shape=(5, 6, 6))
-        # kseq = Sequential()
-        # kseq.add(layer)
-        #
-        # from bigdl.nn.layer import PriorBox as PriorBoxBigDL
-        # from bigdl.nn.layer import Sequential as BSequential
-        # from bigdl.nn.layer import SplitTable, JoinTable, Reshape, InferReshape
-        # bmodel = BSequential()
-        # blayer = PriorBoxBigDL(min_sizes=[114.0], max_sizes=[168.0], aspect_ratios=[2.0, 3.0],
-        #                        variances=[0.1, 0.1, 0.2, 0.2], is_clip=True,
-        #                        img_h=300, img_w=300)
-        # bmodel.add(blayer)
-        # bmodel.add(InferReshape([2, -1, 4], True))
-        # bmodel.add(SplitTable(2))
-        # bmodel.add(JoinTable(2, 2))
-        # keras_output = kseq.predict(input_data)
-        # bigdl_output = bmodel.forward(input_data)
-        # print(keras_output)
-        # print(bigdl_output)
-        # np.testing.assert_allclose(keras_output, bigdl_output, rtol=1e-4, atol=1e-4)
             self.modelTestSingleLayer(input_data, layer, rtol=1e-5, atol=1e-5)
 
 
