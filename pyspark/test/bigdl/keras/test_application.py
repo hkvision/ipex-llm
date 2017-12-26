@@ -182,15 +182,17 @@ class TestApplication(BigDLTestCase):
         self.assert_allclose(keras_output, bigdl_output, rtol=1e-3, atol=1e-3)
 
     def test_ssd(self):
-        keras.backend.set_image_dim_ordering("th")
+        keras.backend.set_image_dim_ordering("tf")
         input_data = np.random.random([1, 300, 300, 3])
         from bigdl.ssd.ssd import SSD300
         from bigdl.ssd.ssd_layers import Normalize, PriorBox
         from keras.utils.generic_utils import CustomObjectScope
         with CustomObjectScope({"Normalize": Normalize, 'PriorBox': PriorBox}):
             kmodel = SSD300(input_shape=(300, 300, 3))
-            print(kmodel.get_output_shape_at(0))
+            # print(kmodel.get_output_shape_at(0))
+            # print(kmodel.predict(input_data).shape)
             self.assert_model(input_data, kmodel, rtol=1e-2, atol=1e-2)
+            # kmodel.predict(input_data)
 
 
 if __name__ == "__main__":

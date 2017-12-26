@@ -137,7 +137,7 @@ def SSD300(input_shape, num_classes=21):
     net['conv4_3_norm'] = Normalize(20, name='conv4_3_norm')(net['conv4_3'])
     num_priors = 3
     x = Convolution2D(num_priors * 4, 3, 3, border_mode='same',
-                      name='conv4_3_norm_mbox_loc')(net['conv4_3'])
+                      name='conv4_3_norm_mbox_loc')(net['conv4_3_norm'])
     net['conv4_3_norm_mbox_loc'] = x
     flatten = Flatten(name='conv4_3_norm_mbox_loc_flat')
     net['conv4_3_norm_mbox_loc_flat'] = flatten(net['conv4_3_norm_mbox_loc'])
@@ -145,14 +145,14 @@ def SSD300(input_shape, num_classes=21):
     if num_classes != 21:
         name += '_{}'.format(num_classes)
     x = Convolution2D(num_priors * num_classes, 3, 3, border_mode='same',
-                      name=name)(net['conv4_3'])
+                      name=name)(net['conv4_3_norm'])
     net['conv4_3_norm_mbox_conf'] = x
     flatten = Flatten(name='conv4_3_norm_mbox_conf_flat')
     net['conv4_3_norm_mbox_conf_flat'] = flatten(net['conv4_3_norm_mbox_conf'])
     priorbox = PriorBox(img_size, 30.0, aspect_ratios=[2],
                         variances=[0.1, 0.1, 0.2, 0.2],
                         name='conv4_3_norm_mbox_priorbox')
-    net['conv4_3_norm_mbox_priorbox'] = priorbox(net['conv4_3'])
+    net['conv4_3_norm_mbox_priorbox'] = priorbox(net['conv4_3_norm'])
     # Prediction from fc7
     num_priors = 6
     net['fc7_mbox_loc'] = Convolution2D(num_priors * 4, 3, 3,
@@ -286,5 +286,5 @@ def SSD300(input_shape, num_classes=21):
                                net['mbox_priorbox']],
                                mode='concat', concat_axis=2,
                                name='predictions')
-    model = Model(net['input'], net['conv4_3_norm'])
+    model = Model(net['input'], net['predictions'])
     return model
