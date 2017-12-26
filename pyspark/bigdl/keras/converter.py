@@ -1795,7 +1795,7 @@ class LayerConverter:
     def create_normalize(self):
         blayer = BLayer.NormalizeScale(p=2.0,
                                        scale=float(self.klayer.scale),
-                                       size=[1, 16, 16, 16])
+                                       size=[1, 1, 1, 1])
         return blayer
 
     def combo_parameter_layer(self, blayer, config):
