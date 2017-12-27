@@ -292,7 +292,7 @@ class WeightsConverter:
 
     @staticmethod
     def convert_normalize(klayer, weights):
-        return [weights[0].reshape(1,  1, 1, weights[0].shape[0])]
+        return [weights[0].reshape(1, weights[0].shape[0], 1, 1)]
 
 
 class DefinitionLoader:
@@ -1797,9 +1797,10 @@ class LayerConverter:
         return bmodel
 
     def create_normalize(self):
+        # Only support th dim_ordering for now.
         blayer = BLayer.NormalizeScale(p=2.0,
                                        scale=float(self.klayer.scale),
-                                       size=[1, 1, 1, self.input_shape[3]])
+                                       size=[1, self.input_shape[1], 1, 1])
         return blayer
 
     def combo_parameter_layer(self, blayer, config):

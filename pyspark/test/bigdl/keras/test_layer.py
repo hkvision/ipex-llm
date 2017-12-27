@@ -770,30 +770,9 @@ class TestLayer(BigDLTestCase):
         input_data = np.random.random([1, 512, 38, 38])
         from bigdl.ssd.ssd_layers import Normalize
         keras.backend.set_image_dim_ordering("th")
-        # with CustomObjectScope({"Normalize": Normalize}):
-        #     layer = Normalize(20, input_shape=(512, 38, 38))
-        #     self.modelTestSingleLayer(input_data, layer, dump_weights=True)
-
-        # inputs = Input(shape=(512, 38, 1))
-        # x = Normalize(20)(inputs)
-        # kmodel = Model(input=inputs, output=x)
-        # keras_output = kmodel.predict(input_data)
-        # print(kmodel.get_output_shape_at(0))
-
-        layer = Normalize(20, input_shape=(512, 38, 38))
-        kseq = Sequential()
-        kseq.add(layer)
-        keras_output = kseq.predict(input_data)
-        #
-        # from bigdl.nn.layer import NormalizeScale
-        # blayer = NormalizeScale(2.0, 20.0, [1, 1, 1, 1])
-        # bigdl_output = blayer.forward(input_data)
-        # print(input_data)
-        # print(keras_output)
-        print(keras_output.shape)
-        # print(bigdl_output)
-        # print(bigdl_output.shape)
-        # np.testing.assert_allclose(keras_output, bigdl_output, rtol=1e-5, atol=1e-5)
+        with CustomObjectScope({"Normalize": Normalize}):
+            layer = Normalize(20, input_shape=(512, 38, 38))
+            self.modelTestSingleLayer(input_data, layer, dump_weights=True)
 
 
 if __name__ == "__main__":

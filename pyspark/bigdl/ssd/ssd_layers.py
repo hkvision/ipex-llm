@@ -45,7 +45,10 @@ class Normalize(Layer):
 
     def call(self, x, mask=None):
         output = K.l2_normalize(x, self.axis)
-        output *= self.gamma
+        if self.axis == 1:
+            output *= K.expand_dims(K.expand_dims(self.gamma, 1), -1)
+        else:
+            output *= self.gamma
         return output
 
     def get_config(self):
