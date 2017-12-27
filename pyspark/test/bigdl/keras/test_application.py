@@ -189,11 +189,7 @@ class TestApplication(BigDLTestCase):
         from keras.utils.generic_utils import CustomObjectScope
         with CustomObjectScope({"Normalize": Normalize, 'PriorBox': PriorBox}):
             kmodel = SSD300(input_shape=(3, 300, 300))
-            print(kmodel.get_input_shape_at(0))
-            print(kmodel.get_output_shape_at(0))
-            # print(kmodel.predict(input_data).shape)
             self.assert_model(input_data, kmodel, rtol=1e-2, atol=1e-2)
-            # kmodel.predict(input_data)
 
 
 if __name__ == "__main__":
