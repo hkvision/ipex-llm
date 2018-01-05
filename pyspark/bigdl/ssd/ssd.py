@@ -12,6 +12,7 @@ from keras.layers import MaxPooling2D
 from keras.layers import merge
 from keras.layers import Reshape
 from keras.layers import ZeroPadding2D
+from keras.layers import Permute
 from keras.models import Model
 
 from ssd_layers import Normalize
@@ -31,7 +32,7 @@ def SSD300(input_shape, num_classes=21):
     """
     net = {}
     # Block 1
-    input_tensor = input_tensor = Input(shape=input_shape)
+    input_tensor = Input(shape=input_shape)
     img_size = (input_shape[1], input_shape[0])
     net['input'] = input_tensor
     net['conv1_1'] = Convolution2D(64, 3, 3,
@@ -139,6 +140,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * 4, 3, 3, border_mode='same',
                       name='conv4_3_norm_mbox_loc')(net['conv4_3_norm'])
     net['conv4_3_norm_mbox_loc'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute1')
+        net['conv4_3_norm_mbox_loc'] = permute(net['conv4_3_norm_mbox_loc'])
     flatten = Flatten(name='conv4_3_norm_mbox_loc_flat')
     net['conv4_3_norm_mbox_loc_flat'] = flatten(net['conv4_3_norm_mbox_loc'])
     name = 'conv4_3_norm_mbox_conf'
@@ -147,6 +151,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * num_classes, 3, 3, border_mode='same',
                       name=name)(net['conv4_3_norm'])
     net['conv4_3_norm_mbox_conf'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute2')
+        net['conv4_3_norm_mbox_conf'] = permute(net['conv4_3_norm_mbox_conf'])
     flatten = Flatten(name='conv4_3_norm_mbox_conf_flat')
     net['conv4_3_norm_mbox_conf_flat'] = flatten(net['conv4_3_norm_mbox_conf'])
     priorbox = PriorBox(img_size, 30.0, aspect_ratios=[2],
@@ -158,6 +165,9 @@ def SSD300(input_shape, num_classes=21):
     net['fc7_mbox_loc'] = Convolution2D(num_priors * 4, 3, 3,
                                         border_mode='same',
                                         name='fc7_mbox_loc')(net['fc7'])
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute3')
+        net['fc7_mbox_loc'] = permute(net['fc7_mbox_loc'])
     flatten = Flatten(name='fc7_mbox_loc_flat')
     net['fc7_mbox_loc_flat'] = flatten(net['fc7_mbox_loc'])
     name = 'fc7_mbox_conf'
@@ -166,6 +176,9 @@ def SSD300(input_shape, num_classes=21):
     net['fc7_mbox_conf'] = Convolution2D(num_priors * num_classes, 3, 3,
                                          border_mode='same',
                                          name=name)(net['fc7'])
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute4')
+        net['fc7_mbox_conf'] = permute(net['fc7_mbox_conf'])
     flatten = Flatten(name='fc7_mbox_conf_flat')
     net['fc7_mbox_conf_flat'] = flatten(net['fc7_mbox_conf'])
     priorbox = PriorBox(img_size, 60.0, max_size=114.0, aspect_ratios=[2, 3],
@@ -177,6 +190,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * 4, 3, 3, border_mode='same',
                       name='conv6_2_mbox_loc')(net['conv6_2'])
     net['conv6_2_mbox_loc'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute5')
+        net['conv6_2_mbox_loc'] = permute(net['conv6_2_mbox_loc'])
     flatten = Flatten(name='conv6_2_mbox_loc_flat')
     net['conv6_2_mbox_loc_flat'] = flatten(net['conv6_2_mbox_loc'])
     name = 'conv6_2_mbox_conf'
@@ -185,6 +201,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * num_classes, 3, 3, border_mode='same',
                       name=name)(net['conv6_2'])
     net['conv6_2_mbox_conf'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute6')
+        net['conv6_2_mbox_conf'] = permute(net['conv6_2_mbox_conf'])
     flatten = Flatten(name='conv6_2_mbox_conf_flat')
     net['conv6_2_mbox_conf_flat'] = flatten(net['conv6_2_mbox_conf'])
     priorbox = PriorBox(img_size, 114.0, max_size=168.0, aspect_ratios=[2, 3],
@@ -196,6 +215,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * 4, 3, 3, border_mode='same',
                       name='conv7_2_mbox_loc')(net['conv7_2'])
     net['conv7_2_mbox_loc'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute7')
+        net['conv7_2_mbox_loc'] = permute(net['conv7_2_mbox_loc'])
     flatten = Flatten(name='conv7_2_mbox_loc_flat')
     net['conv7_2_mbox_loc_flat'] = flatten(net['conv7_2_mbox_loc'])
     name = 'conv7_2_mbox_conf'
@@ -204,6 +226,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * num_classes, 3, 3, border_mode='same',
                       name=name)(net['conv7_2'])
     net['conv7_2_mbox_conf'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute8')
+        net['conv7_2_mbox_conf'] = permute(net['conv7_2_mbox_conf'])
     flatten = Flatten(name='conv7_2_mbox_conf_flat')
     net['conv7_2_mbox_conf_flat'] = flatten(net['conv7_2_mbox_conf'])
     priorbox = PriorBox(img_size, 168.0, max_size=222.0, aspect_ratios=[2, 3],
@@ -215,6 +240,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * 4, 3, 3, border_mode='same',
                       name='conv8_2_mbox_loc')(net['conv8_2'])
     net['conv8_2_mbox_loc'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute9')
+        net['conv8_2_mbox_loc'] = permute(net['conv8_2_mbox_loc'])
     flatten = Flatten(name='conv8_2_mbox_loc_flat')
     net['conv8_2_mbox_loc_flat'] = flatten(net['conv8_2_mbox_loc'])
     name = 'conv8_2_mbox_conf'
@@ -223,6 +251,9 @@ def SSD300(input_shape, num_classes=21):
     x = Convolution2D(num_priors * num_classes, 3, 3, border_mode='same',
                       name=name)(net['conv8_2'])
     net['conv8_2_mbox_conf'] = x
+    if K.image_dim_ordering() == "th":
+        permute = Permute((2, 3, 1), name='permute10')
+        net['conv8_2_mbox_conf'] = permute(net['conv8_2_mbox_conf'])
     flatten = Flatten(name='conv8_2_mbox_conf_flat')
     net['conv8_2_mbox_conf_flat'] = flatten(net['conv8_2_mbox_conf'])
     priorbox = PriorBox(img_size, 222.0, max_size=276.0, aspect_ratios=[2, 3],

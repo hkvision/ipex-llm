@@ -81,6 +81,7 @@ def setup_package():
                   'bigdl.dataset',
                   'bigdl.nn',
                   'bigdl.transform',
+                  'bigdl.transform.vision',
                   'bigdl.keras',
                   'bigdl.examples',
                   'bigdl.models',
