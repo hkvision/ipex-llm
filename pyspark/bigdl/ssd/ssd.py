@@ -34,6 +34,8 @@ def SSD300(input_shape, num_classes=21):
     # Block 1
     input_tensor = Input(shape=input_shape)
     img_size = (input_shape[1], input_shape[0])
+    if K.image_dim_ordering() == "th":
+        img_size = (input_shape[2], input_shape[1])
     net['input'] = input_tensor
     net['conv1_1'] = Convolution2D(64, 3, 3,
                                    activation='relu',
