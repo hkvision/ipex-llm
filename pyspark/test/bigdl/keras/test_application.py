@@ -191,20 +191,6 @@ class TestApplication(BigDLTestCase):
             kmodel = SSD300(input_shape=(3, 300, 300))
             self.assert_model(input_data, kmodel, rtol=1e-2, atol=1e-2)
 
-    def test_save_ssd(self):
-        keras.backend.set_image_dim_ordering("th")
-        from bigdl.ssd.ssd import SSD300
-        from bigdl.ssd.ssd_layers import Normalize, PriorBox
-        from keras.utils.generic_utils import CustomObjectScope
-        with CustomObjectScope({"Normalize": Normalize, 'PriorBox': PriorBox}):
-            kmodel = SSD300(input_shape=(3, 300, 300))
-            kmodel.load_weights("/home/kai/weights_SSD300_th_new.hdf5")
-            bmodel = DefinitionLoader.from_kmodel(kmodel)
-            WeightLoader.load_weights_from_kmodel(bmodel, kmodel)
-            bmodel.save("/home/kai/ssd_new.bigdl", True)
-            from bigdl.nn.layer import Model
-            bmodel = Model.load("/home/kai/ssd_new.bigdl")
-
 
 if __name__ == "__main__":
     pytest.main([__file__])
