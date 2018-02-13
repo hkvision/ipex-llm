@@ -19,7 +19,7 @@ package com.intel.analytics.bigdl.example.keras
 import com.intel.analytics.bigdl._
 import com.intel.analytics.bigdl.dataset.DataSet
 import com.intel.analytics.bigdl.dataset.image.{BytesToGreyImg, GreyImgNormalizer, GreyImgToBatch}
-import com.intel.analytics.bigdl.nn.{ClassNLLCriterion, Module}
+import com.intel.analytics.bigdl.nn.ClassNLLCriterion
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter}
@@ -55,29 +55,15 @@ object Train {
         BytesToGreyImg(28, 28) -> GreyImgNormalizer(trainMean, trainStd) -> GreyImgToBatch(
         param.batchSize)
 
-      val optimizer = Optimizer(
-        model = model,
-        dataset = trainSet,
-        criterion = ClassNLLCriterion[Float](logProbAsInput = false))
-      if (param.checkpoint.isDefined) {
-        optimizer.setCheckpoint(param.checkpoint.get, Trigger.everyEpoch)
-      }
-      if(param.overWriteCheckpoint) {
-        optimizer.overWriteCheckpoint()
-      }
-
       val validationSet = DataSet.array(load(validationData, validationLabel), sc) ->
         BytesToGreyImg(28, 28) -> GreyImgNormalizer(testMean, testStd) -> GreyImgToBatch(
         param.batchSize)
 
-      optimizer
-        .setValidation(
-          trigger = Trigger.everyEpoch,
-          dataset = validationSet,
-          vMethods = Array(new Top1Accuracy, new Top5Accuracy[Float], new Loss[Float]))
-        .setOptimMethod(optimMethod)
-        .setEndWhen(Trigger.maxEpoch(param.maxEpoch))
-        .optimize()
+      model.compile(optimizer = optimMethod,
+        loss = ClassNLLCriterion[Float](logProbAsInput = false),
+        metrics = Array(new Top1Accuracy, new Top5Accuracy[Float], new Loss[Float]))
+
+      model.fit(trainSet, epochs = 10, verbose = false, validationData = validationSet)
 
       sc.stop()
     })
