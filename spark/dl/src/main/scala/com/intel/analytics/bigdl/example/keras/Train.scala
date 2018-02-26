@@ -62,7 +62,6 @@ object Train {
       model.compile(optimizer = optimMethod,
         loss = ClassNLLCriterion[Float](logProbAsInput = false),
         metrics = Array(new Top1Accuracy, new Top5Accuracy[Float], new Loss[Float]))
-
       model.fit(trainSet, epochs = 10, verbose = false, validationData = validationSet)
 
       sc.stop()

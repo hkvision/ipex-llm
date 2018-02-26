@@ -176,7 +176,6 @@ class Sequential[T: ClassTag](val stopInferShape: Boolean = false)
     modules += module.asInstanceOf[AbstractModule[Activity, Activity, T]]
     this
   }
-
 }
 
 object Sequential extends ContainerSerializable with TKerasSerializerHelper{
