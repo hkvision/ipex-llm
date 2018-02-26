@@ -40,7 +40,7 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
     }
   }
 
-  "model compile and fit" should "work properly" in {
+  "sequential compile and fit" should "work properly" in {
     val data = sc.range(0, 16, 1).map { _ =>
       val featureTensor = Tensor[Float](10)
       featureTensor.apply1(_ => scala.util.Random.nextFloat())
@@ -48,14 +48,28 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
       labelTensor(Array(1)) = Math.round(scala.util.Random.nextFloat())
       Sample[Float](featureTensor, labelTensor)
     }
-
     val model = Sequential[Float]()
     model.add(Dense(8, inputShape = Shape(10)))
     model.compile(optimizer = new SGD[Float](), loss = MSECriterion[Float]())
     model.fit(data, batchSize = 8)
   }
 
-  "model compile multiple times" should "use the last compile" in {
+  "graph compile and fit" should "work properly" in {
+    val data = sc.range(0, 16, 1).map { _ =>
+      val featureTensor = Tensor[Float](10)
+      featureTensor.apply1(_ => scala.util.Random.nextFloat())
+      val labelTensor = Tensor[Float](1)
+      labelTensor(Array(1)) = Math.round(scala.util.Random.nextFloat())
+      Sample[Float](featureTensor, labelTensor)
+    }
+    val input = Input[Float](inputShape = Shape(10))
+    val output = Dense[Float](8, activation = "relu").inputs(input)
+    val model = Model[Float](input, output)
+    model.compile(optimizer = new SGD[Float](), loss = MSECriterion[Float]())
+    model.fit(data, batchSize = 8)
+  }
+
+  "sequential compile multiple times" should "use the last compile" in {
     val data = sc.range(0, 8, 1).map { _ =>
       val featureTensor = Tensor[Float](8)
       featureTensor.apply1(_ => scala.util.Random.nextFloat())
@@ -70,7 +84,7 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
     model.fit(data, batchSize = 8)
   }
 
-  "model compile and fit with validation" should "work properly" in {
+  "sequential compile and fit with validation" should "work properly" in {
     val data = sc.range(0, 16, 1).map { _ =>
       val featureTensor = Tensor[Float](12)
       featureTensor.apply1(_ => scala.util.Random.nextFloat())

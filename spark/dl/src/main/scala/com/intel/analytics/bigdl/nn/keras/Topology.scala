@@ -16,23 +16,24 @@
 
 package com.intel.analytics.bigdl.nn.keras
 
-import com.intel.analytics.bigdl.{Criterion, DataSet, Module}
-import com.intel.analytics.bigdl.dataset.{MiniBatch, Sample}
+import com.intel.analytics.bigdl.Module
 import com.intel.analytics.bigdl.nn.Graph._
 import com.intel.analytics.bigdl.nn.abstractnn.{AbstractModule, Activity}
 import com.intel.analytics.bigdl.nn.{Graph, GraphSerializable, StaticGraph, Sequential => TSequential}
-import com.intel.analytics.bigdl.optim.{OptimMethod, Optimizer, Trigger, ValidationMethod}
 import com.intel.analytics.bigdl.serialization.Bigdl.BigDLModule
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
 import com.intel.analytics.bigdl.utils.serializer._
-import com.intel.analytics.bigdl.utils.{LoggerFilter, Shape, Util}
-import org.apache.spark.rdd.RDD
+import com.intel.analytics.bigdl.utils.{Shape, Util}
 
 import scala.reflect.ClassTag
 
 class Model[T: ClassTag](private val _inputs : Seq[ModuleNode[T]],
       private val _outputs : Seq[ModuleNode[T]])(implicit ev: TensorNumeric[T])
-  extends StaticGraph[T](_inputs, _outputs, None, false) {
+  extends StaticGraph[T](_inputs, _outputs, None, false) with Training[T] {
+
+  override var model: Module[T] = this
+
+  var testfield = false
 
   Util.excludeNotKeras(inputs.map(_.element))
   Util.excludeNotKeras(outputs.map(_.element))
@@ -61,7 +62,7 @@ object Model extends ModelSerializer{
    */
   def apply[T: ClassTag](
       input : Array[ModuleNode[T]],
-      output : Array[ModuleNode[T]])(implicit ev: TensorNumeric[T]) : Graph[T] = {
+      output : Array[ModuleNode[T]])(implicit ev: TensorNumeric[T]) : Model[T] = {
     new Model[T](input, output)
   }
 
@@ -72,7 +73,7 @@ object Model extends ModelSerializer{
    * @return a graph container
    */
   def apply[T: ClassTag](input : ModuleNode[T], output : Array[ModuleNode[T]])
-                        (implicit ev: TensorNumeric[T]) : Graph[T] = {
+                        (implicit ev: TensorNumeric[T]) : Model[T] = {
     new Model[T](Seq(input), output)
   }
 
@@ -83,7 +84,7 @@ object Model extends ModelSerializer{
    * @return a graph container
    */
   def apply[T: ClassTag](input : Array[ModuleNode[T]], output : ModuleNode[T])
-                        (implicit ev: TensorNumeric[T]) : Graph[T] = {
+                        (implicit ev: TensorNumeric[T]) : Model[T] = {
     new Model[T](input, Seq(output))
   }
   /**
@@ -93,7 +94,7 @@ object Model extends ModelSerializer{
    * @return a graph container
    */
   def apply[T: ClassTag](input : ModuleNode[T], output : ModuleNode[T])
-                        (implicit ev: TensorNumeric[T]) : Graph[T] = {
+                        (implicit ev: TensorNumeric[T]) : Model[T] = {
     new Model[T](Seq(input), Seq(output))
   }
 }
@@ -119,7 +120,9 @@ trait ModelSerializer extends GraphSerializable with TKerasSerializerHelper{
 }
 
 class Sequential[T: ClassTag](val stopInferShape: Boolean = false)
-(implicit ev: TensorNumeric[T]) extends TSequential[T] {
+(implicit ev: TensorNumeric[T]) extends TSequential[T] with Training[T] {
+
+  override var model: Module[T] = this
 
   override private[bigdl] def isCompatibleWithKeras(): Boolean = true
 
@@ -174,67 +177,6 @@ class Sequential[T: ClassTag](val stopInferShape: Boolean = false)
     this
   }
 
-  protected var compile: CompileConfig[T] = null
-
-  /**
-   * Configures the learning process.
-   * Must call this before fit.
-   */
-  def compile(optimizer: OptimMethod[T], loss: Criterion[T],
-              metrics: Array[ValidationMethod[T]] = null): Unit = {
-    this.compile = CompileConfig(optimizer, loss, metrics)
-  }
-
-  /**
-   * Trains the model for a fixed number of epochs.
-   */
-  def fit(x: RDD[Sample[T]], batchSize: Int = 32, epochs: Int = 10,
-          verbose: Boolean = false, validationData: RDD[Sample[T]] = null): Module[T] = {
-    // TODO: local optimizer
-    require(this.compile != null, "You must call compile before fit")
-    if (!verbose) {
-      LoggerFilter.redirectSparkInfoLogs()
-    }
-    val optimizer = Optimizer(
-      model = this,
-      sampleRDD = x,
-      criterion = this.compile.criterion,
-      batchSize = batchSize)
-    optimizer.setOptimMethod(this.compile.optimMethod)
-      .setEndWhen(Trigger.maxEpoch(epochs))
-    if (validationData != null) {
-      require(this.compile.vMethods != null, "Haven't set validation metrics yet")
-      optimizer.setValidation(trigger = Trigger.everyEpoch,
-        sampleRDD = validationData,
-        vMethods = this.compile.vMethods,
-        batchSize = batchSize)
-    }
-    optimizer.optimize()
-  }
-
-  /**
-   * Trains the model for a fixed number of epochs.
-   */
-  def fit[D: ClassTag](x: DataSet[D], epochs: Int,
-          verbose: Boolean, validationData: DataSet[MiniBatch[T]]): Module[T] = {
-    require(this.compile != null, "You must call compile before fit")
-    if (!verbose) {
-      LoggerFilter.redirectSparkInfoLogs()
-    }
-    val optimizer = Optimizer(
-      model = this,
-      dataset = x,
-      criterion = this.compile.criterion)
-    if (validationData != null) {
-      require(this.compile.vMethods != null, "Haven't set validation metrics yet")
-      optimizer.setValidation(trigger = Trigger.everyEpoch,
-        dataset = validationData,
-        vMethods = this.compile.vMethods)
-    }
-    optimizer.setOptimMethod(this.compile.optimMethod)
-      .setEndWhen(Trigger.maxEpoch(epochs))
-    optimizer.optimize()
-  }
 }
 
 object Sequential extends ContainerSerializable with TKerasSerializerHelper{
@@ -250,7 +192,3 @@ object Sequential extends ContainerSerializable with TKerasSerializerHelper{
     appendKerasLabel(context, moduleBuilder)
   }
 }
-
-case class CompileConfig[T: ClassTag](optimMethod: OptimMethod[T],
-                                      criterion: Criterion[T],
-                                      vMethods: Array[ValidationMethod[T]])
