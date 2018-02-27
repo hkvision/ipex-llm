@@ -17,7 +17,9 @@
 import sys
 
 from bigdl.nn.layer import Layer, Sequential as TSequential, Model as TModel
-from bigdl.util.common import callBigDlFunc, JTensor, JavaValue, to_list
+from bigdl.util.common import *
+import numpy as np
+from pyspark.rdd import RDD
 
 if sys.version >= '3':
     long = int
@@ -64,7 +66,36 @@ class KerasLayer(Layer):
         return name
 
 
-class Sequential(TSequential, InferShape):
+class Training(JavaValue):
+    def __init__(self, bigdl_type="float"):
+        self.bigdl_type = bigdl_type
+
+    def compile(self, optimizer, loss, metrics=None):
+        init_engine()
+        callBigDlFunc(self.bigdl_type, "compile",
+                      self.value,
+                      optimizer,
+                      loss,
+                      metrics)
+
+    def fit(self, x, y=None, batch_size=32, nb_epoch=10, validation_data=None):
+        redire_spark_logs()
+        show_bigdl_info_logs()
+        if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
+            training_data = to_sample_rdd(x, y)
+            validation_data_rdd = to_sample_rdd(*validation_data)
+        elif isinstance(x, RDD) and not y:
+            training_data = x
+            validation_data_rdd = validation_data
+        callBigDlFunc(self.bigdl_type, "fit",
+                      self.value,
+                      training_data,
+                      batch_size,
+                      nb_epoch,
+                      validation_data_rdd)
+
+
+class Sequential(TSequential, InferShape, Training):
     """
     Container for a Sequential model.
 

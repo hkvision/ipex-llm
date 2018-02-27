@@ -18,15 +18,17 @@ package com.intel.analytics.bigdl.python.api
 
 import java.util.{ArrayList => JArrayList, HashMap => JHashMap, List => JList, Map => JMap}
 
+import com.intel.analytics.bigdl.Criterion
 import com.intel.analytics.bigdl.nn.Graph.ModuleNode
 import com.intel.analytics.bigdl.nn.{Container, SpatialBatchNormalization}
 import com.intel.analytics.bigdl.nn.abstractnn.{AbstractModule, Activity}
 import com.intel.analytics.bigdl.nn.keras._
 import com.intel.analytics.bigdl.numeric._
-import com.intel.analytics.bigdl.optim.Regularizer
+import com.intel.analytics.bigdl.optim.{OptimMethod, Regularizer, ValidationMethod}
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
 import com.intel.analytics.bigdl.utils.{MultiShape, Shape, SingleShape}
+import org.apache.spark.api.java.JavaRDD
 
 import scala.collection.JavaConverters._
 import scala.language.existentials
@@ -662,6 +664,56 @@ class PythonBigDLKeras[T: ClassTag](implicit ev: TensorNumeric[T]) extends Pytho
     mergeMode: String = "concat",
     inputShape: JList[Int] = null): Bidirectional[T] = {
     Bidirectional(layer, mergeMode, toScalaShape(inputShape))
+  }
+
+  def compile(
+    module: Sequential[T],
+    optimizer: String,
+    loss: String,
+    metrics: JList[String] = null): Unit = {
+    module.compile(optimizer, loss, metrics.asScala.toArray)
+  }
+
+  def compile(
+    module: Sequential[T],
+    optimizer: OptimMethod[T],
+    loss: Criterion[T],
+    metrics: JList[ValidationMethod[T]]): Unit = {
+    module.compile(optimizer, loss, metrics.asScala.toArray)
+  }
+
+  def fit(
+    module: Sequential[T],
+    x: JavaRDD[Sample],
+    batchSize: Int = 32,
+    epochs: Int = 10,
+    validationData: JavaRDD[Sample]): Unit = {
+    module.fit(toJSample(x), batchSize, epochs, toJSample(validationData))
+  }
+
+  def compile(
+    module: Model[T],
+    optimizer: String,
+    loss: String,
+    metrics: JList[String]): Unit = {
+    module.compile(optimizer, loss, metrics.asScala.toArray)
+  }
+
+  def compile(
+    module: Model[T],
+    optimizer: OptimMethod[T],
+    loss: Criterion[T],
+    metrics: JList[ValidationMethod[T]]): Unit = {
+    module.compile(optimizer, loss, metrics.asScala.toArray)
+  }
+
+  def fit(
+    module: Model[T],
+    x: JavaRDD[Sample],
+    batchSize: Int,
+    epochs: Int,
+    validationData: JavaRDD[Sample]): Unit = {
+    module.fit(toJSample(x), batchSize, epochs, toJSample(validationData))
   }
 
 }

@@ -31,7 +31,7 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
 
   before {
     Engine.setNodeAndCore(nodeNumber, coreNumber)
-    sc = new SparkContext(s"local[$coreNumber]", "ModuleCompileFitSpec")
+    sc = new SparkContext(s"local[$coreNumber]", "TrainingSpec")
   }
 
   after {
@@ -50,7 +50,7 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
     }
     val model = Sequential[Float]()
     model.add(Dense(8, inputShape = Shape(10)))
-    model.compile(optimizer = new SGD[Float](), loss = MSECriterion[Float]())
+    model.compile(optimizer = "sgd", loss = "mse")
     model.fit(data, batchSize = 8)
   }
 
@@ -65,7 +65,7 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
     val input = Input[Float](inputShape = Shape(10))
     val output = Dense[Float](8, activation = "relu").inputs(input)
     val model = Model[Float](input, output)
-    model.compile(optimizer = new SGD[Float](), loss = MSECriterion[Float]())
+    model.compile(optimizer = "adam", loss = "mse")
     model.fit(data, batchSize = 8)
   }
 
@@ -79,8 +79,8 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
     }
     val model = Sequential[Float]()
     model.add(Dense(3, inputShape = Shape(8)))
-    model.compile(optimizer = new SGD[Float](), loss = ClassNLLCriterion[Float]())
-    model.compile(optimizer = new Adam[Float](), loss = MSECriterion[Float]())
+    model.compile(optimizer = "sgd", loss = "categorical_crossentropy")
+    model.compile(optimizer = "adam", loss = "mse")
     model.fit(data, batchSize = 8)
   }
 
@@ -101,8 +101,7 @@ class TrainingSpec extends FlatSpec with Matchers with BeforeAndAfter{
     }
     val model = Sequential[Float]()
     model.add(Dense(8, activation = "relu", inputShape = Shape(12)))
-    model.compile(optimizer = new SGD[Float](), loss = MSECriterion[Float](),
-      metrics = Array(new Top1Accuracy[Float]()))
+    model.compile(optimizer = "sgd", loss = "mse", metrics = Array("accuracy"))
     model.fit(data, batchSize = 8, validationData = validate)
   }
 

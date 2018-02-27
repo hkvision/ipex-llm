@@ -26,70 +26,76 @@ import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 
 case class TrainingConfig[T](optimMethod: OptimMethod[T],
-                            criterion: Criterion[T],
-                            vMethods: Array[ValidationMethod[T]])
+                             criterion: Criterion[T],
+                             vMethods: Array[ValidationMethod[T]])
 
 trait Training[T]{
 
   var model: Module[T]
 
-  private var compile: TrainingConfig[T] = null
+  private var compileConf: TrainingConfig[T] = null
 
   /**
    * Configures the learning process.
    * Must be called before fit.
    */
-  def compile(optimizer: OptimMethod[T], loss: Criterion[T],
-              metrics: Array[ValidationMethod[T]] = null)(implicit ev: TensorNumeric[T]): Unit = {
-    this.compile = TrainingConfig(optimizer, loss, metrics)
+  def compile(optimizer: String,
+              loss: String,
+              metrics: Array[String] = null)
+    (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Unit = {
+    this.compileConf = TrainingConfig[T](KerasUtils.toBigDLOptimMethod(optimizer),
+      KerasUtils.toBigDLCriterion(loss),
+      KerasUtils.toBigDLMetrics(metrics))
+  }
+
+  def compile(optimizer: OptimMethod[T],
+              loss: Criterion[T],
+              metrics: Array[ValidationMethod[T]]): Unit = {
+    this.compileConf = TrainingConfig(optimizer, loss, metrics)
   }
 
   /**
-   * Trains the model for a fixed number of epochs.
+   * Trains the model for a fixed number of epochs on a dataset.
    */
   def fit(x: RDD[Sample[T]], batchSize: Int = 32, epochs: Int = 10,
-          verbose: Boolean = false, validationData: RDD[Sample[T]] = null)
-    (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Module[T] = {
+          validationData: RDD[Sample[T]] = null)
+    (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Unit = {
     // TODO: local optimizer
-    require(this.compile != null, "compile must be called before fit")
-    if (!verbose) {
-      LoggerFilter.redirectSparkInfoLogs()
-    }
+    require(this.compileConf != null, "compile must be called before fit")
+    LoggerFilter.redirectSparkInfoLogs()
     val optimizer = Optimizer(
       model = model,
       sampleRDD = x,
-      criterion = this.compile.criterion,
+      criterion = this.compileConf.criterion,
       batchSize = batchSize)
-    optimizer.setOptimMethod(this.compile.optimMethod)
+    optimizer.setOptimMethod(this.compileConf.optimMethod)
       .setEndWhen(Trigger.maxEpoch(epochs))
     if (validationData != null) {
-      require(this.compile.vMethods != null, "Validation metrics haven't been set yet")
+      require(this.compileConf.vMethods != null, "validation metrics haven't been set yet")
       optimizer.setValidation(trigger = Trigger.everyEpoch,
         sampleRDD = validationData,
-        vMethods = this.compile.vMethods,
+        vMethods = this.compileConf.vMethods,
         batchSize = batchSize)
     }
     optimizer.optimize()
   }
 
   def fit[D: ClassTag](x: DataSet[D], epochs: Int,
-                       verbose: Boolean, validationData: DataSet[MiniBatch[T]])
-    (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Module[T] = {
-    require(this.compile != null, "compile must be called before fit")
-    if (!verbose) {
-      LoggerFilter.redirectSparkInfoLogs()
-    }
+                       validationData: DataSet[MiniBatch[T]])
+    (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Unit = {
+    require(this.compileConf != null, "compile must be called before fit")
+    LoggerFilter.redirectSparkInfoLogs()
     val optimizer = Optimizer(
       model = model,
       dataset = x,
-      criterion = this.compile.criterion)
+      criterion = this.compileConf.criterion)
     if (validationData != null) {
-      require(this.compile.vMethods != null, "Validation metrics haven't been set yet")
+      require(this.compileConf.vMethods != null, "Validation metrics haven't been set yet")
       optimizer.setValidation(trigger = Trigger.everyEpoch,
         dataset = validationData,
-        vMethods = this.compile.vMethods)
+        vMethods = this.compileConf.vMethods)
     }
-    optimizer.setOptimMethod(this.compile.optimMethod)
+    optimizer.setOptimMethod(this.compileConf.optimMethod)
       .setEndWhen(Trigger.maxEpoch(epochs))
     optimizer.optimize()
   }
