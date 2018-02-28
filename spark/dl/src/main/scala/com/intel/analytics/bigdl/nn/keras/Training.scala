@@ -17,8 +17,8 @@
 package com.intel.analytics.bigdl.nn.keras
 
 import com.intel.analytics.bigdl.{Criterion, DataSet, Module}
-import com.intel.analytics.bigdl.dataset.{MiniBatch, Sample}
-import com.intel.analytics.bigdl.optim.{OptimMethod, Optimizer, Trigger, ValidationMethod}
+import com.intel.analytics.bigdl.dataset.{LocalDataSet, MiniBatch, Sample}
+import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
 import com.intel.analytics.bigdl.utils.LoggerFilter
 import org.apache.spark.rdd.RDD
@@ -60,7 +60,6 @@ trait Training[T]{
   def fit(x: RDD[Sample[T]], batchSize: Int = 32, epochs: Int = 10,
           validationData: RDD[Sample[T]] = null)
     (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Unit = {
-    // TODO: local optimizer
     require(this.compileConf != null, "compile must be called before fit")
     LoggerFilter.redirectSparkInfoLogs()
     val optimizer = Optimizer(
@@ -86,6 +85,26 @@ trait Training[T]{
     require(this.compileConf != null, "compile must be called before fit")
     LoggerFilter.redirectSparkInfoLogs()
     val optimizer = Optimizer(
+      model = model,
+      dataset = x,
+      criterion = this.compileConf.criterion)
+    if (validationData != null) {
+      require(this.compileConf.vMethods != null, "Validation metrics haven't been set yet")
+      optimizer.setValidation(trigger = Trigger.everyEpoch,
+        dataset = validationData,
+        vMethods = this.compileConf.vMethods)
+    }
+    optimizer.setOptimMethod(this.compileConf.optimMethod)
+      .setEndWhen(Trigger.maxEpoch(epochs))
+    optimizer.optimize()
+  }
+
+  def fit[D: ClassTag](x: LocalDataSet[MiniBatch[T]], epochs: Int,
+                       validationData: DataSet[MiniBatch[T]])
+    (implicit ev: TensorNumeric[T], ct: ClassTag[T]): Unit = {
+    require(this.compileConf != null, "compile must be called before fit")
+    LoggerFilter.redirectSparkInfoLogs()
+    val optimizer = new LocalOptimizer[T](
       model = model,
       dataset = x,
       criterion = this.compileConf.criterion)

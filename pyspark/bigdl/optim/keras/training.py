@@ -15,6 +15,7 @@
 #
 
 from bigdl.util.common import *
+import multiprocessing
 
 
 class Training(JavaValue):
@@ -28,17 +29,34 @@ class Training(JavaValue):
                       loss,
                       metrics)
 
-    def fit(self, x, y=None, batch_size=32, nb_epoch=10, validation_data=None):
-        if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
-            training_data = to_sample_rdd(x, y)
-            validation_data = to_sample_rdd(*validation_data)
-        elif isinstance(x, RDD) and not y:
-            training_data = x
+    def fit(self, x, y=None, batch_size=32, nb_epoch=10, validation_data=None, distributed=True):
+        if distributed:
+            if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
+                training_data = to_sample_rdd(x, y)
+                if validation_data:
+                    validation_data = to_sample_rdd(*validation_data)
+            elif isinstance(x, RDD) and not y:
+                training_data = x
+            else:
+                raise TypeError("Unsupported training data type: %s" % type(x))
+            callBigDlFunc(self.bigdl_type, "fit",
+                          self.value,
+                          training_data,
+                          batch_size,
+                          nb_epoch,
+                          validation_data)
         else:
-            raise TypeError("Unsupported training data type: %s" % type(x))
-        callBigDlFunc(self.bigdl_type, "fit",
-                      self.value,
-                      training_data,
-                      batch_size,
-                      nb_epoch,
-                      validation_data)
+            if validation_data:
+                val_x = [JTensor.from_ndarray(x) for x in to_list(validation_data[0])]
+                val_y = JTensor.from_ndarray(validation_data[1])
+            else:
+                val_x, val_y = None, None
+            callBigDlFunc(self.bigdl_type, "fit",
+                          self.value,
+                          [JTensor.from_ndarray(x) for x in to_list(x)],
+                          JTensor.from_ndarray(y),
+                          batch_size,
+                          nb_epoch,
+                          val_x,
+                          val_y,
+                          multiprocessing.cpu_count())
