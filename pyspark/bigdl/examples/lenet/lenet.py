@@ -14,19 +14,8 @@
 # limitations under the License.
 #
 
-from bigdl.models.lenet.utils import *
 from bigdl.nn.keras.layer import *
-from bigdl.dataset.transformer import *
-
-
-def load_data(location="/tmp/mnist"):
-    (train_images, train_labels) = mnist.read_data_sets(location, "train")
-    (test_images, test_labels) = mnist.read_data_sets(location, "test")
-    X_train = normalizer(train_images, mnist.TRAIN_MEAN, mnist.TRAIN_STD)
-    X_test = normalizer(test_images, mnist.TRAIN_MEAN, mnist.TRAIN_STD)
-    Y_train = train_labels + 1
-    Y_test = test_labels + 1
-    return (X_train, Y_train), (X_test, Y_test)
+from bigdl.dataset import mnist
 
 
 def build_model(class_num):
@@ -44,7 +33,7 @@ def build_model(class_num):
 
 
 if __name__ == "__main__":
-    (X_train, Y_train), (X_test, Y_test) = load_data()
+    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
     model = build_model(10)
     model.compile(loss='sparse_categorical_crossentropy',
