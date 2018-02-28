@@ -14,12 +14,11 @@
 # limitations under the License.
 #
 
+import sys
 
 from bigdl.nn.layer import Layer, Sequential as TSequential, Model as TModel
-from bigdl.util.common import *
-from bigdl.optim.keras.training import *
-import numpy as np
-from pyspark.rdd import RDD
+from bigdl.util.common import callBigDlFunc, JTensor, JavaValue, to_list
+from bigdl.optim.keras.training import Training
 
 if sys.version >= '3':
     long = int
