@@ -17,6 +17,8 @@
 package com.intel.analytics.bigdl.keras
 
 import com.intel.analytics.bigdl.example.keras.LeNet
+import com.intel.analytics.bigdl.models.vgg.{VggForCifar10 => VGG1}
+import com.intel.analytics.bigdl.models.kerasvgg.{VggForCifar10 => VGG2}
 import com.intel.analytics.bigdl.tensor.Tensor
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -32,6 +34,32 @@ class LeNetSpec extends FlatSpec with Matchers {
     val input = Tensor[Float](Array(2, 28, 28, 1)).rand()
     val output = cnn.forward(input)
     val gradInput = cnn.backward(input, output)
+  }
+
+  "VGG sequential" should "be correct" in {
+    val vgg1 = VGG1(10, hasDropout = false)
+    val vgg2 = VGG2(10, hasDropout = false)
+    vgg2.setWeightsBias(vgg1.parameters()._1)
+    val input = Tensor[Float](Array(2, 3, 32, 32)).rand()
+    val output1 = vgg1.forward(input)
+    val output2 = vgg2.forward(input)
+    val gradInput1 = vgg1.backward(input, output1)
+    val gradInput2 = vgg2.backward(input, output2)
+    output1.toTensor[Float].almostEqual(output2.toTensor[Float], 1e-5) should be(true)
+    gradInput1.toTensor[Float].almostEqual(gradInput2.toTensor[Float], 1e-5) should be(true)
+  }
+
+  "VGG graph" should "be correct" in {
+    val vgg1 = VGG1.graph(10, hasDropout = false)
+    val vgg2 = VGG2.graph(10, hasDropout = false)
+    vgg2.setWeightsBias(vgg1.parameters()._1)
+    val input = Tensor[Float](Array(2, 3, 32, 32)).rand()
+    val output1 = vgg1.forward(input)
+    val output2 = vgg2.forward(input)
+    val gradInput1 = vgg1.backward(input, output1)
+    val gradInput2 = vgg2.backward(input, output2)
+    output1.toTensor[Float].almostEqual(output2.toTensor[Float], 1e-5) should be(true)
+    gradInput1.toTensor[Float].almostEqual(gradInput2.toTensor[Float], 1e-5) should be(true)
   }
 
 }

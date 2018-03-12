@@ -17,7 +17,7 @@
 package com.intel.analytics.bigdl.nn.keras
 
 import com.intel.analytics.bigdl.nn._
-import com.intel.analytics.bigdl.nn.abstractnn.{AbstractModule, DataFormat}
+import com.intel.analytics.bigdl.nn.abstractnn.{AbstractModule, DataFormat, IdentityOutputShape}
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
 import com.intel.analytics.bigdl.utils.Shape
@@ -53,7 +53,8 @@ class BatchNormalization[T: ClassTag](
    val gammaInit: String = "one",
    val dimOrdering: DataFormat = DataFormat.NCHW,
    val inputShape: Shape = null)(implicit ev: TensorNumeric[T])
-  extends KerasLayer[Tensor[T], Tensor[T], T](KerasLayer.addBatch(inputShape)) {
+  extends KerasLayer[Tensor[T], Tensor[T], T](KerasLayer.addBatch(inputShape))
+  with IdentityOutputShape {
 
   private def getInit(init: String, n: Int): Tensor[T] = {
     val weights = Tensor[T](n)
@@ -71,12 +72,12 @@ class BatchNormalization[T: ClassTag](
     }
   }
 
-  override def computeOutputShape(inputShape: Shape): Shape = {
-    val input = inputShape.toSingle().toArray
-    require(input.length == 4,
-      s"BatchNormalization requires 4D input, but got input dim ${input.length}")
-    inputShape
-  }
+//  override def computeOutputShape(inputShape: Shape): Shape = {
+//    val input = inputShape.toSingle().toArray
+//    require(input.length == 4,
+//      s"BatchNormalization requires 4D input, but got input dim ${input.length}")
+//    inputShape
+//  }
 
   override def doBuild(inputShape: Shape): AbstractModule[Tensor[T], Tensor[T], T] = {
     val input = inputShape.toSingle().toArray
@@ -85,13 +86,23 @@ class BatchNormalization[T: ClassTag](
       case DataFormat.NHWC => input(3)
     }
     // TODO: support arbitrary input shape
-    val layer = SpatialBatchNormalization(
-      nOutput = nChannel,
-      eps = epsilon,
-      momentum = momentum,
-      initWeight = getInit(gammaInit, nChannel),
-      initBias = getInit(betaInit, nChannel),
-      dataFormat = dimOrdering)
+    val layer = if (input.length == 4) {
+      SpatialBatchNormalization(
+        nOutput = nChannel,
+        eps = epsilon,
+        momentum = momentum,
+        initWeight = getInit(gammaInit, nChannel),
+        initBias = getInit(betaInit, nChannel),
+        dataFormat = dimOrdering)
+    }
+    else {
+      com.intel.analytics.bigdl.nn.BatchNormalization(
+        nOutput = input(1),
+        eps = epsilon,
+        momentum = momentum,
+        initWeight = getInit(gammaInit, input(1)),
+        initBias = getInit(betaInit, input(1)))
+    }
     layer.asInstanceOf[AbstractModule[Tensor[T], Tensor[T], T]]
   }
 }
