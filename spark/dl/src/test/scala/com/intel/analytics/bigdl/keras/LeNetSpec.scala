@@ -19,6 +19,8 @@ package com.intel.analytics.bigdl.keras
 import com.intel.analytics.bigdl.example.keras.LeNet
 import com.intel.analytics.bigdl.models.vgg.{VggForCifar10 => VGG1}
 import com.intel.analytics.bigdl.models.kerasvgg.{VggForCifar10 => VGG2}
+import com.intel.analytics.bigdl.models.inception.{Inception_v1_NoAuxClassifier => Inception1}
+import com.intel.analytics.bigdl.models.kerasinception.{Inception_v1_NoAuxClassifier => Inception2}
 import com.intel.analytics.bigdl.tensor.Tensor
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -58,6 +60,19 @@ class LeNetSpec extends FlatSpec with Matchers {
     val output2 = vgg2.forward(input)
     val gradInput1 = vgg1.backward(input, output1)
     val gradInput2 = vgg2.backward(input, output2)
+    output1.toTensor[Float].almostEqual(output2.toTensor[Float], 1e-5) should be(true)
+    gradInput1.toTensor[Float].almostEqual(gradInput2.toTensor[Float], 1e-5) should be(true)
+  }
+
+  "InceptionV1" should "be correct" in {
+    val inception1 = Inception1(1000)
+    val inception2 = Inception2(1000)
+    inception2.setWeightsBias(inception1.parameters()._1)
+    val input = Tensor[Float](Array(2, 3, 224, 224)).rand()
+    val output1 = inception1.forward(input)
+    val output2 = inception2.forward(input)
+    val gradInput1 = inception1.backward(input, output1)
+    val gradInput2 = inception1.backward(input, output2)
     output1.toTensor[Float].almostEqual(output2.toTensor[Float], 1e-5) should be(true)
     gradInput1.toTensor[Float].almostEqual(gradInput2.toTensor[Float], 1e-5) should be(true)
   }

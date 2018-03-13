@@ -26,10 +26,15 @@ import com.intel.analytics.bigdl.optim._
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric._
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter}
 import com.intel.analytics.bigdl.visualization.{TrainSummary, ValidationSummary}
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkContext
 
 object Train {
-  LoggerFilter.redirectSparkInfoLogs()
+//  LoggerFilter.redirectSparkInfoLogs()
+  Logger.getLogger("org").setLevel(Level.ERROR)
+  Logger.getLogger("akka").setLevel(Level.ERROR)
+  Logger.getLogger("breeze").setLevel(Level.ERROR)
+  Logger.getLogger("com.intel.analytics.bigdl.optim").setLevel(Level.INFO)
 
   import Utils._
 
