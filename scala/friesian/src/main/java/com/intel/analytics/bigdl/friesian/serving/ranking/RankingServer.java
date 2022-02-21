@@ -55,7 +55,7 @@ public class RankingServer extends GrpcServerBase {
     public RankingServer(String[] args) {
         super(args);
         port = 8083;
-        configPath = "config_ranking.yaml";
+        configPath = "/home/kai/BigDL/scala/friesian/src/main/resources/config/config_ranking.yaml";
         options.addOption(new Option("p", "port", true,
                 "The port to create the server"));
         Configurator.setLevel("org", Level.ERROR);
