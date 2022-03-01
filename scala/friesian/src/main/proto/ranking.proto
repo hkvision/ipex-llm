@@ -19,10 +19,16 @@ service Ranking {
     rpc doPredict(Content) returns (Prediction) {}
     rpc getMetrics(google.protobuf.Empty) returns (ServerMessage) {}
     rpc resetMetrics(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc addModel(ModelMeta) returns (Status) {}
+    rpc registerModel(ModelMeta) returns (Status) {}
+    rpc deregisterModel(ModelMeta) returns (Status) {}
+    rpc removeModel(ModelMeta) returns (Status) {}
 }
 
 message Content {
     string encodedStr = 1;
+    string modelName = 2;
+    string version = 3;
 }
 
 message Prediction {
@@ -31,4 +37,16 @@ message Prediction {
 
 message ServerMessage {
     string str = 1;
+}
+
+message ModelMeta {
+    string name = 1;
+    string version = 2;
+    string basePath = 3;
+    string platform = 4;
+}
+
+message Status {
+    bool success = 1;
+    string message = 2;
 }
