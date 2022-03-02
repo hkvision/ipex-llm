@@ -42,8 +42,8 @@ message ServerMessage {
 message ModelMeta {
     string name = 1;
     string version = 2;
-    string basePath = 3;
-    string platform = 4;
+    string modelPath = 3;
+    repeated string savedModelInputs = 4;
 }
 
 message Status {

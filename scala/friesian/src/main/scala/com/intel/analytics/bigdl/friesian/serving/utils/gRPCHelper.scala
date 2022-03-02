@@ -26,6 +26,8 @@ import org.apache.logging.log4j.{LogManager, Logger}
 class gRPCHelper extends Serializable {
   // BeanProperty store attributes read from config file
   @BeanProperty var modelPath = ""
+  @BeanProperty var modelVersion = "1"
+  @BeanProperty var modelName = ""
   @BeanProperty var ServicePort = -1
   @BeanProperty var monitorPort: Int = 0
 

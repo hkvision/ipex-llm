@@ -20,6 +20,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.protobuf.Empty;
 import com.intel.analytics.bigdl.dllib.nn.abstractnn.Activity;
+import com.intel.analytics.bigdl.friesian.serving.feature.utils.RedisUtils;
 import com.intel.analytics.bigdl.friesian.serving.grpc.generated.ranking.RankingGrpc;
 import com.intel.analytics.bigdl.friesian.serving.grpc.generated.ranking.RankingProto.*;
 import com.intel.analytics.bigdl.friesian.serving.utils.*;
@@ -37,11 +38,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RankingServer extends GrpcServerBase {
@@ -99,15 +99,23 @@ public class RankingServer extends GrpcServerBase {
     }
 
     private static class RankingService extends RankingGrpc.RankingImplBase {
+        // name -> version -> InferenceModel
+        private Map<String, Object> modelRegistry = new HashMap<String, Object>();
         private final InferenceModel model;
         private MetricRegistry metrics = new MetricRegistry();
+        private RedisUtils redis;
+        private Jedis jedis;
         Timer overallTimer = metrics.timer("ranking.overall");
         Timer decodeTimer = metrics.timer("ranking.decode");
         Timer inferenceTimer = metrics.timer("ranking.inference");
         Timer encodeTimer = metrics.timer("ranking.encode");
 
+        // TODO: remove the model configurations from helper?
         RankingService() {
             gRPCHelper helper = Utils.helper();
+            redis = RedisUtils.getInstance(Utils.helper().getRedisPoolMaxTotal(),
+                    Utils.helper().redisHostPort(), Utils.helper().getRedisKeyPrefix(),
+                    Utils.helper().itemSlotType());
             this.model = helper.loadInferenceModel(helper.modelParallelism(), helper.modelPath(),
                     helper.savedModelInputsArr());
         }
