@@ -100,8 +100,7 @@ public class RankingServer extends GrpcServerBase {
 
     private static class RankingService extends RankingGrpc.RankingImplBase {
         // name -> version -> InferenceModel
-        private Map<String, Object> modelRegistry = new HashMap<String, Object>();
-        private final InferenceModel model;
+        private Map<String, Object> modelRegistry = new HashMap<>();
         private MetricRegistry metrics = new MetricRegistry();
         private RedisUtils redis;
         private Jedis jedis;
@@ -113,11 +112,16 @@ public class RankingServer extends GrpcServerBase {
         // TODO: remove the model configurations from helper?
         RankingService() {
             gRPCHelper helper = Utils.helper();
-            redis = RedisUtils.getInstance(Utils.helper().getRedisPoolMaxTotal(),
-                    Utils.helper().redisHostPort(), Utils.helper().getRedisKeyPrefix(),
-                    Utils.helper().itemSlotType());
-            this.model = helper.loadInferenceModel(helper.modelParallelism(), helper.modelPath(),
+            InferenceModel model = helper.loadInferenceModel(
+                    helper.modelParallelism(), helper.modelPath(),
                     helper.savedModelInputsArr());
+            Map<String, InferenceModel> versionMap = new HashMap<>();
+            versionMap.put(helper.modelVersion(), model);
+            modelRegistry.put(helper.modelName(), versionMap);
+            redis = RedisUtils.getInstance(helper.getRedisPoolMaxTotal(),
+                    helper.redisHostPort(), helper.getRedisKeyPrefix(),
+                    helper.itemSlotType());
+            redis.listAppend(helper.modelName(), helper.modelVersion());
         }
 
         @Override
@@ -135,13 +139,33 @@ public class RankingServer extends GrpcServerBase {
             Activity input = (Activity) EncodeUtils.bytesToObj(bytes1);
             decodeContext.stop();
             Timer.Context inferenceContext = inferenceTimer.time();
-            Activity predictResult = model.doPredict(input);
-            inferenceContext.stop();
-            Timer.Context encodeContext = encodeTimer.time();
-            String res = Base64.getEncoder().encodeToString(EncodeUtils.objToBytes(predictResult));
-            encodeContext.stop();
-            overallContext.stop();
-            return Prediction.newBuilder().setPredictStr(res).build();
+            String modelName = msg.getModelName();
+            String modelVersion = msg.getVersion();
+            if (modelName == null || ! modelRegistry.containsKey(modelName)) {
+                logger.error(modelName + "is not available");
+                return Prediction.newBuilder().setPredictStr("error").build();
+            }
+            else {
+                Map<String, InferenceModel> modelMap =
+                        (Map<String, InferenceModel>) modelRegistry.get(modelName);
+                if (modelVersion == null) {
+                    modelVersion = redis.listGetLast(modelName);
+                }
+                else {
+                    if (! redis.listExist(modelName, modelVersion)) {
+                        logger.error(modelVersion + " for " + modelName + " is not available");
+                        return Prediction.newBuilder().setPredictStr("error").build();
+                    }
+                }
+                InferenceModel model = modelMap.get(modelVersion);
+                Activity predictResult = model.doPredict(input);
+                inferenceContext.stop();
+                Timer.Context encodeContext = encodeTimer.time();
+                String res = Base64.getEncoder().encodeToString(EncodeUtils.objToBytes(predictResult));
+                encodeContext.stop();
+                overallContext.stop();
+                return Prediction.newBuilder().setPredictStr(res).build();
+            }
         }
 
         @Override

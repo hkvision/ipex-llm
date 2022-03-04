@@ -128,6 +128,82 @@ public class RedisUtils {
         }
     }
 
+    // Check the existence of a model version.
+    public boolean listExist(String key, String value) {
+        if (cluster == null) {
+            Jedis jedis = getRedisClient();
+            if (jedis.lpos(key, value) == null) {
+                jedis.close();
+                return false;
+            }
+            else {
+                return true;
+            }
+        } else {
+            JedisCluster cluster = getCluster();
+            if (cluster.lpos(key, value) == null) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+
+    // Append the model version.
+    public void listAppend(String key, String value) {
+        if (cluster == null) {
+            Jedis jedis = getRedisClient();
+            if (! listExist(key, value)) {
+                jedis.rpush(key, value);
+                jedis.close();
+            }
+            else {
+                logger.error(value + " already exists for " + key);
+            }
+        } else {
+            JedisCluster cluster = getCluster();
+            if (! listExist(key, value)) {
+                cluster.rpush(key, value);
+            }
+            else {
+                logger.error(value + " already exists for " + key);
+            }
+        }
+    }
+
+    // Get the latest version of a model.
+    public String listGetLast(String key) {
+        if (cluster == null) {
+            Jedis jedis = getRedisClient();
+            return jedis.lindex(key, -1);
+        } else {
+            return getCluster().lindex(key, -1);
+        }
+    }
+
+    // Remove the target version of a model.
+    public void listRemove(String key, String value) {
+        if (cluster == null) {
+            Jedis jedis = getRedisClient();
+            if (jedis.lpos(key, value) == null) {
+                logger.error(value + " doesn't exist for " + key + ", nothing to remove");
+            }
+            else {
+                jedis.lrem(key, 0, value);
+                jedis.close();
+            }
+        } else {
+            JedisCluster cluster = getCluster();
+            if (cluster.lpos(key, value) == null) {
+                logger.error(value + " doesn't exist for " + key + ", nothing to remove");
+            }
+            else {
+                cluster.lrem(key, 0, value);
+            }
+        }
+    }
+
     public void clusterSet(String keyPrefix, List<String>[] dataArray) {
         if (keyPrefix.equals("user") ||
                 (keyPrefix.equals("item") && itemSlotType == 0)) {

@@ -43,7 +43,8 @@ public class RankingClient {
     public void inference(String encodedStr) {
 //        info("*** Get input: " + jsonStr);
 
-        Content request = Content.newBuilder().setEncodedStr(encodedStr).build();
+        Content request = Content.newBuilder().setEncodedStr(encodedStr)
+                .setModelName("wnd").setVersion("1").build();
 
         Prediction predResult;
         try {
