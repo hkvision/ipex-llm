@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #export SSL_CERT_DIR=/etc/ssl/certs
-#export LD_PRELOAD="/opt/work/kai/libjemalloc.so":$LD_PRELOAD
+export LD_PRELOAD="/opt/work/kai/libjemalloc.so":$LD_PRELOAD
 #export MALLOC_CONF="oversize_threshold:1,background_thread:true,metadata_thp:auto,dirty_decay_ms:9000000000,muzzy_decay_ms:9000000000"
 #
 #export DNNL_PRIMITIVE_CACHE_CAPACITY=1024
