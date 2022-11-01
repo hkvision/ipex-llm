@@ -185,14 +185,6 @@ def main():
     if "LD_PRELOAD" in os.environ:
         env["LD_PRELOAD"] = os.environ["LD_PRELOAD"]
 
-    env = {"MALLOC_CONF": "oversize_threshold:1,background_thread:true,metadata_thp:auto,dirty_decay_ms:9000000000,muzzy_decay_ms:9000000000",
-           "DNNL_PRIMITIVE_CACHE_CAPACITY": "1024",
-           "KMP_BLOCKTIME": "1",
-           "KMP_AFFINITY": "granularity=fine,compact,1,0",
-           "SSL_CERT_DIR": "/etc/ssl/certs"}
-    if "LD_PRELOAD" in os.environ:
-        env["LD_PRELOAD"] = os.environ["LD_PRELOAD"]
-
     if args.cluster_mode == "local":
         init_orca_context("local", cores=args.cores, memory="10g")
     elif args.cluster_mode == "standalone":
