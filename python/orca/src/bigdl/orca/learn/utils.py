@@ -141,7 +141,10 @@ def add_predict_to_pd_xshards(xshards, pred_xshards):
     def add_prediction(df_preds):
         df, preds = df_preds
         preds = preds["prediction"]
-        df["prediction"] = [pred for pred in preds]
+        if isinstance(preds[0], np.ndarray):
+            df["prediction"] = [pred.tolist() for pred in preds]
+        else:
+            df["prediction"] = [pred for pred in preds]
         return df
 
     result = SparkXShards(xshards.rdd.zip(pred_xshards.rdd).map(add_prediction),
@@ -355,6 +358,20 @@ def transform_to_shard_dict(data, feature_cols, label_cols=None):
         col_types = df.dtypes
         if len(feature_cols) == 1:
             featureLists = df[feature_cols[0]].tolist()
+            tmp = []
+            datas = list(featureLists[0][0])
+            for data in datas:
+                tmp.append(data.tolist())
+
+            tmp_list = []
+            for i in range(3):
+                tmp_list.append(tmp)
+
+            tmp_l = []
+            for i in range(6):
+                tmp_l.append(tmp_list)
+
+            featureLists = tmp_l
             result["x"] = np.stack(featureLists, axis=0)
         else:
             result["x"] = [single_col_to_numpy(df[feature_col], col_types[feature_col])

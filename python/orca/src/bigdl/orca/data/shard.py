@@ -910,6 +910,7 @@ class SparkXShards(XShards):
             if _class_name == 'pandas.core.frame.DataFrame':
                 schema = [str(x) if not isinstance(x, str) else x for x in pdf.columns]
                 pdf_schema = {'columns': schema, 'dtypes': pdf.dtypes}
+                pdf["prediction"] = pdf["prediction"].astype(str)
 
                 if major_version >= '3':
                     from pyspark.sql.pandas.types import from_arrow_type

@@ -224,23 +224,25 @@ class OpenvinoEstimator(SparkEstimator):
                                   "x in each shard should be a ndarray or a list of ndarray.")
             return feature_data
 
+        def update_result_shard(data):
+            shard, y = data
+            shard["prediction"] = y
+            return shard
+
         if isinstance(data, DataFrame):
-            from pyspark.sql.types import StructType, StructField, FloatType, ArrayType
-            is_df = True
-            schema = data.schema
-            result = data.rdd.mapPartitions(lambda iter: partition_inference(iter))
+            from bigdl.orca.data.utils import spark_df_to_pd_sparkxshards
+            from bigdl.orca.learn.utils import process_xshards_of_pandas_dataframe, \
+                add_predict_to_pd_xshards
+            xshards = spark_df_to_pd_sparkxshards(data)
+            pd_sparkxshards = process_xshards_of_pandas_dataframe(xshards,
+                                                                  feature_cols=feature_cols)
 
-            # Deal with types
-            result_struct = []
-            for key, shape in self.output_dict.items():
-                struct_type = FloatType()
-                for _ in range(len(shape)):
-                    struct_type = ArrayType(struct_type)  # type: ignore
-                result_struct.append(StructField(key, struct_type))
+            transformed_data = pd_sparkxshards.transform_shard(predict_transform, batch_size)
+            result_rdd = transformed_data.rdd.mapPartitions(lambda iter: partition_inference(iter))
 
-            schema = StructType(schema.fields + result_struct)
-            result_df = result.toDF(schema)
-            return result_df
+            pred_shards = SparkXShards(pd_sparkxshards.rdd.zip(result_rdd).map(update_result_shard))
+            res_shards = add_predict_to_pd_xshards(xshards, pred_shards)
+            return res_shards #._to_spark_df_without_arrow()  #.to_spark_df()
         elif isinstance(data, SparkXShards):
             transformed_data = data.transform_shard(predict_transform, batch_size)
             result_rdd = transformed_data.rdd.mapPartitions(lambda iter: partition_inference(iter))

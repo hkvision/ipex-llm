@@ -75,7 +75,7 @@ def main():
                 "spark.kubernetes.executor.volumes.persistentVolumeClaim.nfsvolumeclaim"
                 ".mount.path": "/bigdl/nfsdata"
             }
-            init_orca_context(cluster_mode="k8s-client", num_nodes=2, cores=4, memory="2g",
+            sc = init_orca_context(cluster_mode="k8s-client", num_nodes=2, cores=4, memory="2g",
                               driver_cores=2, driver_memory="2g",
                               master=os.environ.get("RUNTIME_SPARK_MASTER"),
                               container_image=os.environ.get("RUNTIME_K8S_SPARK_IMAGE"),
@@ -108,14 +108,17 @@ def main():
               "'yarn-cluster', 'k8s-client', 'k8s-cluster', 'bigdl-submit' or 'spark-submit', "
               "but got " + args.cluster_mode)
 
-    orca_estimator = Estimator.from_torch(model=model_creator,
-                                          optimizer=optimizer_creator,
-                                          loss=nn.CrossEntropyLoss(),
-                                          metrics=[Accuracy()],
-                                          backend="spark")
-
-    train_stats = orca_estimator.fit(train_data_creator, epochs=1, batch_size=32)
-    print("Train stats: {}".format(train_stats))
+    rdd = sc.range(1, 100)
+    print(rdd.collect())
+    # orca_estimator = Estimator.from_torch(model=model_creator,
+    #                                       optimizer=optimizer_creator,
+    #                                       loss=nn.CrossEntropyLoss(),
+    #                                       metrics=[Accuracy()],
+    #                                       backend="spark",
+    #                                       use_tqdm=True)
+    #
+    # train_stats = orca_estimator.fit(train_data_creator, epochs=1, batch_size=32)
+    # print("Train stats: {}".format(train_stats))
 
     stop_orca_context()
 
