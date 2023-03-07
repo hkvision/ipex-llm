@@ -149,7 +149,7 @@ pip install tensorflow==2.9.0
 ### Run Workflow
 Use these commands to run the workflow:
 ```
-python python/friesian/example/wnd/wnd_preprocess_recsys.py \
+python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
     --executor_cores 8 \
     --executor_memory 10g \
     --train_files 0-1 \
@@ -158,7 +158,7 @@ python python/friesian/example/wnd/wnd_preprocess_recsys.py \
     --output_folder apps/recsys_data/preprocessed \
     --cross_sizes 600
 
-python python/friesian/example/wnd/wnd_train_recsys.py \
+python python/friesian/example/wnd/recsys2021/wnd_train_recsys.py \
     --executor_cores 8 \
     --executor_memory 10g \
     --data_dir apps/recsys_data/preprocessed \
