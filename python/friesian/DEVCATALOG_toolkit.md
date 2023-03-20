@@ -1,6 +1,6 @@
 # Building Recommender Systems with Intel® Recsys Toolkit
 
-Use Intel® Recsys Toolkit, BigDL Friesian to easily build large-scale distributed training and online serving
+Use Intel® Recsys Toolkit, BigDL Friesian, to easily build large-scale distributed training and online serving
 pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution with Wide & Deep Learning model.
 
 Check out more workflow examples and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
@@ -35,7 +35,7 @@ For more details, visit the BigDL Friesian [GitHub repository](https://github.co
 
 The architecture above illustrates the main components in Intel® Recsys Toolkit.
 
-- The offline training workflow is implemented based on Spark, Ray and [BigDL Orca](https://bigdl.readthedocs.io/en/latest/doc/Orca/index.html) to efficiently scale the data processing and DNN model training on large Xeon clusters.
+- The offline training workflow is implemented based on Spark, Ray and BigDL to efficiently scale the data processing and DNN model training on large Xeon clusters.
 - The online serving workflow is implemented based on gRPC and HTTP, which consists of Recall, Ranking, Feature and Recommender services. The Recall Service integrates Intel® Optimized Faiss to significantly speed up the vector search step.
 
 

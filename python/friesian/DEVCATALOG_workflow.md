@@ -35,7 +35,7 @@ For more details, visit the BigDL [GitHub repository](https://github.com/intel-a
 The architecture above illustrates how BigDL can build end-to-end, distributed and in-memory pipelines on Intel® Xeon clusters.
 
 - BigDL supports loading data from various distributed data sources and data formats that are widely used in the big data ecosystem.
-- BigDL supports distributed data processing with Spark DataFrame, Ray Dataset, or scaling common Python data libraries using [XShards](https://bigdl.readthedocs.io/en/latest/doc/Orca/Overview/data-parallel-processing.html#xshards-distributed-data-parallel-python-processing).
+- BigDL supports distributed data processing with Spark DataFrame, Ray Dataset and provides APIs for distributed data parallel processing of Python libraries.
 - BigDL supports seamlessly scaling many popular deep learning frameworks and includes runtime optimizations on Xeon.
 
 ## Get Started
@@ -125,7 +125,7 @@ docker run -a stdout $DOCKER_RUN_ENVS \
 
 ---
 
-## Run Training Using Bare Metal
+## Run Training Workflow Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running a provided Docker image with Docker, see the [Docker
 instructions](#run-using-docker).
@@ -176,7 +176,7 @@ python train_2tower.py \
     --batch_size 8000
 ```
 
-## Expected Training Output
+## Expected Training Workflow Output
 Check out the processed data and saved models of the workflow:
 ```
 ll apps/wide-deep-recommendation/recsys_data/preprocessed
@@ -206,7 +206,7 @@ Training time is:  53.32298707962036
 
 ---
 
-## Run Serving Using Docker
+## Run Online Serving Pipeline Using Docker
 You are highly recommended to run the online serving pipeline for the recsys workflow using our provided Docker image.
 
 ### Set Up Docker Image
