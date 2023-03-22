@@ -1,14 +1,14 @@
 # Distributed Training & Inference Workflows using BigDL 
 
 Learn to use BigDL to easily build and seamlessly scale distributed training and inference workflows
-for TensorFlow and PyTorch. This page takes the recsys workflows for Wide & Deep Learning model as an example.
+for TensorFlow and PyTorch. This page takes the recsys workflows for Neural Collaborative Filtering (NCF) model as an example.
 
 Check out more workflow examples and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
 
 ## Overview
 Usually one would take many efforts to develop distributed training and inference pipelines to handle large datasets in production.
 With the adoption of BigDL, AI workflows written in Python notebooks running on a single laptop can be seamlessly
-scaled out across large clusters so as to process distributed Big Data.
+scaled out across large clusters so as to process distributed big data.
 
 Highlights and benefits of BigDL are as follows:
 
@@ -56,7 +56,7 @@ cd BigDL
 
 ### Download the Datasets
 
-This workflow uses the [ml-100k dataset](https://grouplens.org/datasets/movielens/100k/) of [MovieLens](https://movielens.org/), which contains the users' ratings for the movies.
+This workflow uses the [ml-100k dataset](https://grouplens.org/datasets/movielens/100k/) of [MovieLens](https://movielens.org/), which contains users' ratings for the movies.
 
 ```
 cd python/orca/tutorial/NCF
@@ -103,10 +103,8 @@ export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
 ```
 
 ### Run Docker Image
-Run the workflow using the ``docker run`` command, as shown:  (example)
+Run the workflow using the ``docker run`` command, as shown:
 ```
-# TODO: test and modify this
-
 export DATASET_DIR=apps/recsys_data
 export OUTPUT_DIR=/output
 docker run -a stdout $DOCKER_RUN_ENVS \
@@ -137,8 +135,8 @@ instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/
 ### Set Up Workflow
 Run these commands to set up the workflow's conda environment and install required software:
 ```
-conda create -n friesian python=3.9 --yes
-conda activate friesian
+conda create -n bigdl python=3.9 --yes
+conda activate bigdl
 pip install --pre --upgrade bigdl-orca
 pip install intel-tensorflow==2.9.0
 ```
