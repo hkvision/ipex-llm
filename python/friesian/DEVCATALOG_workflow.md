@@ -109,7 +109,6 @@ Run the workflow using the ``docker run`` command, as shown:
 export DATASET_DIR=apps/recsys_data
 export OUTPUT_DIR=/output
 docker run -a stdout $DOCKER_RUN_ENVS \
-  --env DATASET=${DATASET} \
   --env OUTPUT_DIR=${OUTPUT_DIR} \
   --volume ${DATASET_DIR}:/workspace/data \
   --volume ${OUTPUT_DIR}:/output \
