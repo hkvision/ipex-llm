@@ -109,18 +109,17 @@ Run the workflow using the ``docker run`` command, as shown:  (example)
 ```
 # TODO: test and modify this
 
-export DATASET_DIR=apps/recsys_data
+export DATASET_DIR=apps/wide-deep-recommendation/recsys_data
 export OUTPUT_DIR=/output
 docker run -a stdout $DOCKER_RUN_ENVS \
-  --env DATASET=${DATASET} \
   --env OUTPUT_DIR=${OUTPUT_DIR} \
   --volume ${DATASET_DIR}:/workspace/data \
   --volume ${OUTPUT_DIR}:/output \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
-  intel/ai-workflows:bigdl-training \
-  ./run.sh
+  intelanalytics/bigdl-spark-3.1.3:latest \
+  bash
 ```
 
 ---
