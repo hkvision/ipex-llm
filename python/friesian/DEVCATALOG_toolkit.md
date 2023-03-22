@@ -23,10 +23,13 @@ For more details, visit the BigDL Friesian [GitHub repository](https://github.co
 
 ## Hardware Requirements
 
-| Recommended Hardware         | Precision  |
-| ---------------------------- | ---------- |
-| Intel® 4th Gen Xeon® Scalable Performance processors|BF16 |
-| Intel® 1st, 2nd, 3rd, and 4th Gen Xeon® Scalable Performance processors| FP32 |
+Intel® Recsys Toolkit and the workflow example shown below could be run widely on Intel® Xeon® series processors.
+
+|| Recommended Hardware         |
+|---| ---------------------------- |
+|CPU| Intel® Xeon® Scalable processors with Intel®-AVX512|
+|Memory|>10G|
+|Disk|>10G|
 
 
 ## How it Works
@@ -50,7 +53,6 @@ directory.
 mkdir ~/work && cd ~/work
 git clone https://github.com/intel-analytics/BigDL.git
 cd BigDL
-git checkout ai-workflow
 ```
 
 ### Download the Datasets
@@ -69,9 +71,9 @@ cd ../..
 
 ---
 
-## Run Training Using Docker
+## Run Training Workflow Using Docker
 Follow these instructions to set up and run our provided Docker image.
-For running on bare metal, see the [bare metal instructions](#run-using-bare-metal)
+For running the training workflow on bare metal, see the [bare metal instructions](#run-training-workflow-using-bare-metal)
 instructions.
 
 ### Set Up Docker Engine
@@ -128,8 +130,8 @@ docker run -a stdout $DOCKER_RUN_ENVS \
 
 ## Run Training Workflow Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
-system. For running a provided Docker image with Docker, see the [Docker
-instructions](#run-using-docker).
+system. For running the training workflow with a provided Docker image, see the [Docker
+instructions](#run-training-workflow-using-docker).
 
 
 ### Set Up System Software
@@ -140,11 +142,10 @@ instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/
 ### Set Up Workflow
 Run these commands to set up the workflow's conda environment and install required software:
 ```
-# TODO: change backend to spark
-conda create -n friesian python=3.8 --yes
+conda create -n friesian python=3.9 --yes
 conda activate friesian
-pip install --pre --upgrade bigdl-friesian[train]
-pip install tensorflow==2.9.0
+pip install --pre --upgrade bigdl-friesian
+pip install intel-tensorflow==2.9.0
 ```
 
 ### Run Workflow
@@ -186,7 +187,7 @@ ll recsys_2tower/
 ```
 Check out the logs of the console for training results:
 
-`wnd_train_recsys.py`:
+- wnd_train_recsys.py:
 ```
 22/25 [=========================>....] - ETA: 1s - loss: 0.2367 - binary_accuracy: 0.9391 - binary_crossentropy: 0.2367 - auc: 0.5637 - precision: 0.9392 - recall: 1.0000
 23/25 [==========================>...] - ETA: 0s - loss: 0.2374 - binary_accuracy: 0.9388 - binary_crossentropy: 0.2374 - auc: 0.5644 - precision: 0.9388 - recall: 1.0000
@@ -196,7 +197,7 @@ Check out the logs of the console for training results:
 (Worker pid=11371) Epoch 4: early stopping
 Training time is:  53.32298707962036
 ```
-`train_2tower.py`:
+- train_2tower.py:
 ```
 7/10 [====================>.........] - ETA: 0s - loss: 0.3665 - binary_accuracy: 0.8124 - recall: 0.8568 - auc: 0.5007
 8/10 [=======================>......] - ETA: 0s - loss: 0.3495 - binary_accuracy: 0.8282 - recall: 0.8747 - auc: 0.5004
@@ -227,12 +228,7 @@ export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
   -e SOCKS_PROXY=${SOCKS_PROXY}"
 ```
 
-### Run Docker Image
-Run the workflow using the ``docker run`` command, as shown:  (example)
-```
-docker run -itd --name friesian --net=host intelanalytics/friesian-grpc:0.0.2
-docker exec -it friesian bash
-```
+Download & install [redis](https://redis.io/download/#redis-downloads)
 
 ### Run Workflow
 - Run the nearline pipeline
@@ -250,7 +246,7 @@ Output:
 # Keyspace
 ```
 
-3. Run the nealine pipeline
+3. Run the following script to launch the nearline pipeline
 ```bash
 docker_name=intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 
@@ -277,12 +273,24 @@ item_50.idx
 ```
 
 - Run the online pipeline
-1. Run the online pipeline
+1. Run the following script to launch the online pipeline
 ```bash
-bash run_online.sh
+docker_name=intelanalytics/friesian-serving:2.2.0-SNAPSHOT
+
+docker run -itd --net host  --rm --name ranking -v $(pwd):/opt/work/mnt -e OMP_NUM_THREADS=1 $docker_name ranking -c mnt/config_ranking.yaml
+
+docker run -itd --net host --rm --name feature -v $(pwd):/opt/work/mnt $docker_name feature -c mnt/config_feature.yaml
+
+docker run -itd --net host --rm --name feature_recall -v $(pwd):/opt/work/mnt $docker_name feature -c mnt/config_feature_vec.yaml
+
+docker run -itd --net host --rm --name recall -v $(pwd):/opt/work/mnt $docker_name recall -c mnt/config_recall.yaml
+
+#docker run -itd --net host --rm --name recommender -v $(pwd):/opt/work/mnt $docker_name recommender -c mnt/config_recommender.yaml
+
+docker run -itd --net host  --rm --name recommender_http -v $(pwd):/opt/work/mnt $docker_name recommender-http -c mnt/config_recommender.yaml -p 8000
 ```
 
-2. Check the contianers' status
+2. Check the status of the containers
 - There are 5 containers running:
     - recommender_http
     - recall
@@ -321,13 +329,15 @@ For more information about Intel® Recsys Toolkit or to read about other relevan
 examples, see these guides and software resources:
 
 - More recommendation models in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
-- Online serving guide in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
+- Online serving guidance in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Azure Machine Learning Documentation](https://learn.microsoft.com/en-us/azure/machine-learning/)
 
 ## Troubleshooting
-Same as workflow. Copy here after the workflow contents are confirmed.
-
+- If you encounter the error `E0129 21:36:55.796060683 1934066 thread_pool.cc:254] Waiting for thread pool to idle before forking` during the training, it may be caused by the installed version of grpc. See [here](https://github.com/grpc/grpc/pull/32196) for more details about this issue. To fix it, a recommended grpc version is 1.43.0:
+```bash
+pip install grpcio==1.43.0
+```
 
 ## Support
 If you have questions or issues about this workflow, contact the Support Team through [GitHub](https://github.com/intel-analytics/BigDL/issues) or [Google User Group](https://groups.google.com/g/bigdl-user-group).
