@@ -66,7 +66,6 @@ unzip ml-100k.zip
 
 ---
 
-
 ## Run Using Docker
 Follow these instructions to set up and run our provided Docker image.
 For running on bare metal, see the [bare metal instructions](#run-using-bare-metal)
@@ -144,7 +143,6 @@ pip install intel-tensorflow==2.9.0
 ### Run Workflow
 Use these commands to run the workflow:
 ```
-
 # Distributed training
 python tf_train_spark_dataframe.py --dataset ml-100k
 

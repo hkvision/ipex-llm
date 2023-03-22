@@ -23,7 +23,6 @@ For more details, visit the BigDL Friesian [GitHub repository](https://github.co
 
 ## Hardware Requirements
 
-
 Intel® Recsys Toolkit and the workflow example shown below could be run widely on Intel® Xeon® series processors.
 
 || Recommended Hardware         |
@@ -326,7 +325,6 @@ For more information about Intel® Recsys Toolkit or to read about other relevan
 examples, see these guides and software resources:
 
 - More recommendation models in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
-- Online serving guide in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
 - Online serving guidance in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Azure Machine Learning Documentation](https://learn.microsoft.com/en-us/azure/machine-learning/)
