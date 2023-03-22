@@ -108,10 +108,8 @@ export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
 ```
 
 ### Run Docker Image
-Run the workflow using the ``docker run`` command, as shown:  (example)
+Run the workflow using the ``docker run`` command, as shown:
 ```
-# TODO: test and modify this
-
 export DATASET_DIR=apps/recsys_data
 export OUTPUT_DIR=/output
 docker run -a stdout $DOCKER_RUN_ENVS \
@@ -142,8 +140,8 @@ instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/
 ### Set Up Workflow
 Run these commands to set up the workflow's conda environment and install required software:
 ```
-conda create -n friesian python=3.9 --yes
-conda activate friesian
+conda create -n recsys python=3.9 --yes
+conda activate recsys
 pip install --pre --upgrade bigdl-friesian
 pip install intel-tensorflow==2.9.0
 ```
