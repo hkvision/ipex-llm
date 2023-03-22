@@ -147,10 +147,10 @@ pip install intel-tensorflow==2.9.0
 Use these commands to run the workflow:
 ```
 # Distributed training
-python tf_train_spark_dataframe.py
+python tf_train_spark_dataframe.py --dataset ml-100k
 
 # Distributed inference
-python tf_predict_spark_dataframe.py
+python tf_predict_spark_dataframe.py --dataset ml-100k
 ```
 
 ## Expected Output
