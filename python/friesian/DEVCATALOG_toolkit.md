@@ -111,11 +111,11 @@ export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
 Run the workflow using the ``docker run`` command, as shown:
 ```
 export DATASET_DIR=/path/to/BigDL/apps/wide-deep-recommendation/recsys_data
-export OUTPUT_DIR=/output
-docker run -a stdout $DOCKER_RUN_ENVS \
-  --env OUTPUT_DIR=${OUTPUT_DIR} \
+docker run -a stdout \
+  --env http_proxy=${http_proxy} \
+  --env https_proxy=${https_proxy} \
+  --env no_proxy=${no_proxy} \
   --volume ${DATASET_DIR}:/workspace/data \
-  --volume ${OUTPUT_DIR}:/output \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
@@ -150,15 +150,16 @@ Use these commands to run the workflow:
 ```
 python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
     --executor_cores 8 \
-    --executor_memory 10g \
+    --executor_memory 6g \
     --input_train_folder apps/wide-deep-recommendation/recsys_data/train \
     --input_test_folder apps/wide-deep-recommendation/recsys_data/test \
     --output_folder apps/wide-deep-recommendation/recsys_data/preprocessed \
     --cross_sizes 600
 
 python python/friesian/example/wnd/recsys2021/wnd_train_recsys.py \
+    --backend spark \
     --executor_cores 8 \
-    --executor_memory 10g \
+    --executor_memory 6g \
     --data_dir apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_wnd/ \
     --batch_size 3200 \
@@ -168,8 +169,9 @@ python python/friesian/example/wnd/recsys2021/wnd_train_recsys.py \
 
 cd python/friesian/example/two_tower
 python train_2tower.py \
+    --backend spark \
     --executor_cores 8 \
-    --executor_memory 10g \
+    --executor_memory 6g \
     --data_dir apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
     --batch_size 8000
