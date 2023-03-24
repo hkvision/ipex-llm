@@ -105,12 +105,10 @@ export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
 ### Run Docker Image
 Run the workflow using the ``docker run`` command, as shown:
 ```
-export DATASET_DIR=apps/recsys_data
-export OUTPUT_DIR=/output
 docker run -a stdout $DOCKER_RUN_ENVS \
-  --env OUTPUT_DIR=${OUTPUT_DIR} \
-  --volume ${DATASET_DIR}:/workspace/data \
-  --volume ${OUTPUT_DIR}:/output \
+  --env http_proxy=${http_proxy} \
+  --env https_proxy=${https_proxy} \
+  --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
@@ -136,8 +134,8 @@ Run these commands to set up the workflow's conda environment and install requir
 ```
 conda create -n bigdl python=3.9 --yes
 conda activate bigdl
-pip install --pre --upgrade bigdl-orca
-pip install intel-tensorflow==2.9.0
+pip install --pre --upgrade bigdl-orca-spark3
+pip install intel-tensorflow==2.9.1
 ```
 
 ### Run Workflow
