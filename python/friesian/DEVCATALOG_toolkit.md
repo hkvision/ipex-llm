@@ -115,7 +115,6 @@ docker run -a stdout \
   --env http_proxy=${http_proxy} \
   --env https_proxy=${https_proxy} \
   --env no_proxy=${no_proxy} \
-  --volume ${DATASET_DIR}:/workspace/data \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
