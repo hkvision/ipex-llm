@@ -92,15 +92,7 @@ docker pull intelanalytics/bigdl-spark-3.1.3:latest
 ```
 
 If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment:
-```
-export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
-  -e FTP_PROXY=${FTP_PROXY} -e http_proxy=${http_proxy} \
-  -e HTTP_PROXY=${HTTP_PROXY} -e https_proxy=${https_proxy} \
-  -e HTTPS_PROXY=${HTTPS_PROXY} -e no_proxy=${no_proxy} \
-  -e NO_PROXY=${NO_PROXY} -e socks_proxy=${socks_proxy} \
-  -e SOCKS_PROXY=${SOCKS_PROXY}"
-```
+development system's proxy settings to the docker environment via `--env http_proxy=${http_proxy}`.
 
 ### Run Docker Image
 Run the workflow using the ``docker run`` command, as shown:
