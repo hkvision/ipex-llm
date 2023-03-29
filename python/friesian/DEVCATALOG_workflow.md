@@ -41,6 +41,8 @@ The architecture above illustrates how BigDL can build end-to-end, distributed a
 - BigDL supports distributed data processing with Spark DataFrame, Ray Dataset and provides APIs for distributed data parallel processing of Python libraries.
 - BigDL supports seamlessly scaling many popular deep learning frameworks and includes runtime optimizations on Xeon.
 
+---
+
 ## Get Started
 
 ### Download the Workflow Repository

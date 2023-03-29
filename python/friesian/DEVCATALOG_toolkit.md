@@ -42,6 +42,8 @@ The architecture above illustrates the main components in Intel® Recsys Toolkit
 - The online serving workflow is implemented based on gRPC and HTTP, which consists of Recall, Ranking, Feature and Recommender services. The Recall Service integrates Intel® Optimized Faiss to significantly speed up the vector search step.
 
 
+---
+
 ## Get Started
 
 ### Download the Workflow Repository
