@@ -97,31 +97,21 @@ docker pull intelanalytics/bigdl-spark-3.1.3:latest
 ```
 
 If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment:
-```
-export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
-  -e FTP_PROXY=${FTP_PROXY} -e http_proxy=${http_proxy} \
-  -e HTTP_PROXY=${HTTP_PROXY} -e https_proxy=${https_proxy} \
-  -e HTTPS_PROXY=${HTTPS_PROXY} -e no_proxy=${no_proxy} \
-  -e NO_PROXY=${NO_PROXY} -e socks_proxy=${socks_proxy} \
-  -e SOCKS_PROXY=${SOCKS_PROXY}"
-```
+development system's proxy settings to the docker environment via `--env http_proxy=${http_proxy}`.
 
 ### Run Docker Image
 Run the workflow using the ``docker run`` command, as shown:
 ```
-export DATASET_DIR=apps/recsys_data
-export OUTPUT_DIR=/output
-docker run -a stdout $DOCKER_RUN_ENVS \
-  --env DATASET=${DATASET} \
-  --env OUTPUT_DIR=${OUTPUT_DIR} \
-  --volume ${DATASET_DIR}:/workspace/data \
-  --volume ${OUTPUT_DIR}:/output \
+export DATASET_DIR=/path/to/BigDL/apps/wide-deep-recommendation/recsys_data
+docker run -a stdout \
+  --env http_proxy=${http_proxy} \
+  --env https_proxy=${https_proxy} \
+  --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
-  intel/ai-workflows:bigdl-training \
-  ./run.sh
+  intelanalytics/bigdl-spark-3.1.3:latest \
+  bash
 ```
 
 ---
@@ -151,15 +141,16 @@ Use these commands to run the workflow:
 ```
 python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
     --executor_cores 8 \
-    --executor_memory 10g \
+    --executor_memory 6g \
     --input_train_folder apps/wide-deep-recommendation/recsys_data/train \
     --input_test_folder apps/wide-deep-recommendation/recsys_data/test \
     --output_folder apps/wide-deep-recommendation/recsys_data/preprocessed \
     --cross_sizes 600
 
 python python/friesian/example/wnd/recsys2021/wnd_train_recsys.py \
+    --backend spark \
     --executor_cores 8 \
-    --executor_memory 10g \
+    --executor_memory 6g \
     --data_dir apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_wnd/ \
     --batch_size 3200 \
@@ -169,8 +160,9 @@ python python/friesian/example/wnd/recsys2021/wnd_train_recsys.py \
 
 cd python/friesian/example/two_tower
 python train_2tower.py \
+    --backend spark \
     --executor_cores 8 \
-    --executor_memory 10g \
+    --executor_memory 6g \
     --data_dir apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
     --batch_size 8000
@@ -315,7 +307,6 @@ Output:
 See [here](https://github.com/intel-analytics/BigDL/tree/main/scala/friesian) for more detailed guidance to run the online serving workflow.
 
 See [here](https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm) to deploy the serving workflow on a Kubernetes cluster.
-
 
 ## Summary and Next Steps
 This page demonstrates how to use Intel® Recsys Toolkit to build end-to-end training and serving pipelines for Wide & Deep model.

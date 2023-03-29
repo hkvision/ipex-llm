@@ -92,31 +92,20 @@ docker pull intelanalytics/bigdl-spark-3.1.3:latest
 ```
 
 If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment:
-```
-export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
-  -e FTP_PROXY=${FTP_PROXY} -e http_proxy=${http_proxy} \
-  -e HTTP_PROXY=${HTTP_PROXY} -e https_proxy=${https_proxy} \
-  -e HTTPS_PROXY=${HTTPS_PROXY} -e no_proxy=${no_proxy} \
-  -e NO_PROXY=${NO_PROXY} -e socks_proxy=${socks_proxy} \
-  -e SOCKS_PROXY=${SOCKS_PROXY}"
-```
+development system's proxy settings to the docker environment via `--env http_proxy=${http_proxy}`.
 
 ### Run Docker Image
 Run the workflow using the ``docker run`` command, as shown:
 ```
-export DATASET_DIR=apps/recsys_data
-export OUTPUT_DIR=/output
 docker run -a stdout $DOCKER_RUN_ENVS \
-  --env DATASET=${DATASET} \
-  --env OUTPUT_DIR=${OUTPUT_DIR} \
-  --volume ${DATASET_DIR}:/workspace/data \
-  --volume ${OUTPUT_DIR}:/output \
+  --env http_proxy=${http_proxy} \
+  --env https_proxy=${https_proxy} \
+  --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
-  intel/ai-workflows:bigdl-training \
-  ./run.sh
+  intelanalytics/bigdl-spark-3.1.3:latest \
+  bash
 ```
 
 ---
@@ -137,8 +126,8 @@ Run these commands to set up the workflow's conda environment and install requir
 ```
 conda create -n bigdl python=3.9 --yes
 conda activate bigdl
-pip install --pre --upgrade bigdl-orca
-pip install intel-tensorflow==2.9.0
+pip install --pre --upgrade bigdl-orca-spark3
+pip install intel-tensorflow==2.9.1
 ```
 
 ### Run Workflow
@@ -163,11 +152,40 @@ Check out the logs of the console for training results:
 
 - tf_train_spark_dataframe.py:
 ```
-TODO
+Train results:
+verbose: 1
+epochs: 2
+steps: 40
+loss: [0.43995094299316406, 0.3661007285118103]
+accuracy: [0.7953540086746216, 0.83966064453125]
+auc: [0.7579973936080933, 0.8532146215438843]
+precision: [0.3079235553741455, 0.6916240453720093]
+recall: [0.017480555921792984, 0.3596118092536926]
+val_loss: [0.3642280697822571, 0.3102317750453949]
+val_accuracy: [0.8291406035423279, 0.865966796875]
+val_auc: [0.855850875377655, 0.8976992964744568]
+val_precision: [0.7450749278068542, 0.7225849628448486]
+val_recall: [0.21683736145496368, 0.5314843058586121]
+
+Evaluation results:
+validation_loss: 0.3142370283603668
+validation_accuracy: 0.8649218678474426
+validation_auc: 0.8953894376754761
+validation_precision: 0.7280181050300598
+validation_recall: 0.5282735824584961
 ```
 - tf_predict_spark_dataframe.py:
 ```
-TODO
++----+----+-----+-------+------+----------+--------------------+--------+--------------------+
+|item|user|label|zipcode|gender|occupation|                 age|category|          prediction|
++----+----+-----+-------+------+----------+--------------------+--------+--------------------+
+|   1| 627|  0.0|    172|     1|         5|[0.25757575757575...|     102| [0.841558039188385]|
+|   1| 697|  1.0|     74|     1|         2|[0.2727272727272727]|     102|[0.6905139088630676]|
+|   3| 500|  1.0|    705|     1|         4|[0.3181818181818182]|       8|[0.31478825211524...|
+|   5| 815|  0.0|    314|     1|         2|[0.3787878787878788]|      30|[0.27323466539382...|
+|  16| 682|  0.0|    477|     1|         6|[0.24242424242424...|       3|[0.10835579037666...|
++----+----+-----+-------+------+----------+--------------------+--------+--------------------+
+only showing top 5 rows
 ```
 
 
