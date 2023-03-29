@@ -71,7 +71,7 @@ cd ../..
 
 ---
 
-## Run Training Workflow Using Docker
+## Prepare Training Workflow Environment Using Docker
 Follow these instructions to set up and run our provided Docker image.
 For running the training workflow on bare metal, see the [bare metal instructions](#run-training-workflow-using-bare-metal)
 instructions.
@@ -93,16 +93,15 @@ for Azure):
 ### Set Up Docker Image
 Pull the provided docker image.
 ```
-docker pull intelanalytics/bigdl-spark-3.1.3:latest
+docker pull intelanalytics/bigdl-orca:latest
 ```
 
 If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment via `--env http_proxy=${http_proxy}`.
+development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
 
-### Run Docker Image
-Run the workflow using the ``docker run`` command, as shown:
+### Create Docker Container
+Create the docker container for BigDL using the ``docker run`` command, as shown below:
 ```
-export DATASET_DIR=/path/to/BigDL/apps/wide-deep-recommendation/recsys_data
 docker run -a stdout \
   --env http_proxy=${http_proxy} \
   --env https_proxy=${https_proxy} \
@@ -110,13 +109,19 @@ docker run -a stdout \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
-  intelanalytics/bigdl-spark-3.1.3:latest \
+  intelanalytics/bigdl-orca:latest \
   bash
+```
+
+### Install Packages in Docker Container
+Run these commands to install additional packages used for the workflow in the docker container:
+```
+pip install intel-tensorflow==2.9.1
 ```
 
 ---
 
-## Run Training Workflow Using Bare Metal
+## Prepare Training Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running the training workflow with a provided Docker image, see the [Docker
 instructions](#run-training-workflow-using-docker).
@@ -128,16 +133,18 @@ If you don't already have ``conda`` installed, see the [Conda Linux installation
 instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html).
 
 ### Set Up Workflow
-Run these commands to set up the workflow's conda environment and install required software:
+Run these commands to set up the workflow's ``conda`` environment and install required software:
 ```
 conda create -n recsys python=3.9 --yes
 conda activate recsys
 pip install --pre --upgrade bigdl-friesian
-pip install intel-tensorflow==2.9.0
+pip install intel-tensorflow==2.9.1
 ```
 
-### Run Workflow
-Use these commands to run the workflow:
+---
+
+## Run Training Workflow
+Use these commands to run the training workflow:
 ```
 python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
     --executor_cores 8 \
@@ -167,6 +174,8 @@ python train_2tower.py \
     --model_dir recsys_2tower/ \
     --batch_size 8000
 ```
+
+---
 
 ## Expected Training Workflow Output
 Check out the processed data and saved models of the workflow:
