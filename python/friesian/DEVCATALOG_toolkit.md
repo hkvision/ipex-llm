@@ -114,12 +114,11 @@ docker run -a stdout \
 ```
 
 ### Install Packages in Docker Container
-Run these commands to install additional packages used for the workflow in the docker container:
+Run these commands to install additional software used for the workflow in the docker container:
 ```
 pip install intel-tensorflow==2.9.1
 ```
 
----
 
 ## Prepare Training Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
@@ -175,7 +174,6 @@ python train_2tower.py \
     --batch_size 8000
 ```
 
----
 
 ## Expected Training Workflow Output
 Check out the processed data and saved models of the workflow:
@@ -316,6 +314,8 @@ Output:
 See [here](https://github.com/intel-analytics/BigDL/tree/main/scala/friesian) for more detailed guidance to run the online serving workflow.
 
 See [here](https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm) to deploy the serving workflow on a Kubernetes cluster.
+
+---
 
 ## Summary and Next Steps
 This page demonstrates how to use Intel® Recsys Toolkit to build end-to-end training and serving pipelines for Wide & Deep model.

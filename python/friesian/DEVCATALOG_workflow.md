@@ -109,12 +109,11 @@ docker run -a stdout \
 ```
 
 ### Install Packages in Docker Container
-Run these commands to install additional packages used for the workflow in the docker container:
+Run these commands to install additional software used for the workflow in the docker container:
 ```
 pip install intel-tensorflow==2.9.1
 ```
 
----
 
 ## Prepare Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
@@ -147,8 +146,6 @@ python tf_train_spark_dataframe.py --dataset ml-100k
 # Distributed inference
 python tf_predict_spark_dataframe.py --dataset ml-100k
 ```
-
----
 
 ## Expected Output
 Check out the processed data and saved models of the workflow:
@@ -198,6 +195,7 @@ validation_recall: 0.5282735824584961
 only showing top 5 rows
 ```
 
+---
 
 ## Summary and Next Steps
 Now you have successfully tried the recsys workflows of BigDL to build an end-to-end pipeline for Wide & Deep model.
