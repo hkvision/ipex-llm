@@ -70,8 +70,7 @@ unzip ml-100k.zip
 
 ## Prepare Workflow Environment Run Using Docker
 Follow these instructions to set up and run our provided Docker image.
-For running on bare metal, see the [bare metal instructions](#run-using-bare-metal)
-instructions.
+For running on bare metal, see the [bare metal instructions](#Prepare-Workflow-Environment-Using-Bare-Metal).
 
 ### Set Up Docker Engine
 You'll need to install Docker Engine on your development system.
@@ -105,7 +104,7 @@ docker run -a stdout \
   --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
-  --privileged --init -it --rm --pull always \
+  --privileged --init -it --rm \
   intelanalytics/bigdl-orca:latest \
   bash
 ```
@@ -120,7 +119,7 @@ pip install intel-tensorflow==2.9.1
 ## Prepare Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running a provided Docker image with Docker, see the [Docker
-instructions](#run-using-docker).
+ instructions](#Prepare-Workflow-Environment-Run-Using-Docker).
 
 
 ### Set Up System Software
