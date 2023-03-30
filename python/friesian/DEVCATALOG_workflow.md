@@ -70,8 +70,7 @@ unzip ml-100k.zip
 
 ## Prepare Workflow Environment Run Using Docker
 Follow these instructions to set up and run our provided Docker image.
-For running on bare metal, see the [bare metal instructions](#Prepare-Workflow-Environment-Using-Bare-Metal)
-instructions.
+For running on bare metal, see the [bare metal instructions](#Prepare-Workflow-Environment-Using-Bare-Metal).
 
 ### Set Up Docker Engine
 You'll need to install Docker Engine on your development system.
