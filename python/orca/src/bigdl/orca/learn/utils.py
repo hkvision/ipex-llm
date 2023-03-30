@@ -327,7 +327,7 @@ def arrays2others(iter, feature_cols, label_cols, shard_size=None, generate_func
             return [[] for r in cols]
 
     def add_row(data, results, current):
-        if not isinstance(data, list) and not isinstance(data, dict):
+        if not isinstance(data, (list, tuple, dict)):
             arrays = [data]
         else:
             arrays = data
@@ -571,29 +571,6 @@ def get_arrow_hex_str(batched_data, names):
     pred_arrow = pred_arrow.decode("utf-8")
     sink.close()
     return pred_arrow
-
-
-def make_dataloader_list_wrapper(func):
-    import torch
-
-    def make_feature_list(batch):
-        if func is not None:
-            batch = func(batch)
-        *features, target = batch
-        if len(features) == 1 and torch.is_tensor(features[0]):
-            features = features[0]
-        return features, target
-
-    return make_feature_list
-
-
-def reload_dataloader_creator(dataloader_func):
-    def reload_dataloader(config, batch_size):
-        dataloader = dataloader_func(config, batch_size)
-        dataloader.collate_fn = make_dataloader_list_wrapper(dataloader.collate_fn)
-        return dataloader
-
-    return reload_dataloader if dataloader_func else None
 
 
 def data_length(data):

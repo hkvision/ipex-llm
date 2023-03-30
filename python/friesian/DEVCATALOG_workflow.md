@@ -41,6 +41,8 @@ The architecture above illustrates how BigDL can build end-to-end, distributed a
 - BigDL supports distributed data processing with Spark DataFrame, Ray Dataset and provides APIs for distributed data parallel processing of Python libraries.
 - BigDL supports seamlessly scaling many popular deep learning frameworks and includes runtime optimizations on Xeon.
 
+---
+
 ## Get Started
 
 ### Download the Workflow Repository
@@ -66,7 +68,7 @@ unzip ml-100k.zip
 
 ---
 
-## Run Using Docker
+## Prepare Workflow Environment Run Using Docker
 Follow these instructions to set up and run our provided Docker image.
 For running on bare metal, see the [bare metal instructions](#run-using-bare-metal)
 instructions.
@@ -88,29 +90,34 @@ for Azure):
 ### Set Up Docker Image
 Pull the provided docker image.
 ```
-docker pull intelanalytics/bigdl-spark-3.1.3:latest
+docker pull intelanalytics/bigdl-orca:latest
 ```
 
 If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment via `--env http_proxy=${http_proxy}`.
+development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
 
-### Run Docker Image
+### Create Docker Container
 Run the workflow using the ``docker run`` command, as shown:
 ```
-docker run -a stdout $DOCKER_RUN_ENVS \
+docker run -a stdout \
   --env http_proxy=${http_proxy} \
   --env https_proxy=${https_proxy} \
   --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
   --privileged --init -it --rm --pull always \
-  intelanalytics/bigdl-spark-3.1.3:latest \
+  intelanalytics/bigdl-orca:latest \
   bash
 ```
 
----
+### Install Packages in Docker Container
+Run these commands to install additional software used for the workflow in the docker container:
+```
+pip install intel-tensorflow==2.9.1
+```
 
-## Run Using Bare Metal
+
+## Prepare Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running a provided Docker image with Docker, see the [Docker
 instructions](#run-using-docker).
@@ -122,7 +129,7 @@ If you don't already have ``conda`` installed, see the [Conda Linux installation
 instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html).
 
 ### Set Up Workflow
-Run these commands to set up the workflow's conda environment and install required software:
+Run these commands to set up the workflow's ``conda`` environment and install required software:
 ```
 conda create -n bigdl python=3.9 --yes
 conda activate bigdl
@@ -130,7 +137,9 @@ pip install --pre --upgrade bigdl-orca-spark3
 pip install intel-tensorflow==2.9.1
 ```
 
-### Run Workflow
+---
+
+## Run Workflow
 Use these commands to run the workflow:
 ```
 # Distributed training
@@ -148,7 +157,7 @@ ll test_processed_dataframe.parquet
 ll test_predictions_dataframe.parquet
 ll NCF_model.h5
 ```
-Check out the logs of the console for training results:
+Check out the logs of the console for training and inference results:
 
 - tf_train_spark_dataframe.py:
 ```
@@ -188,6 +197,7 @@ validation_recall: 0.5282735824584961
 only showing top 5 rows
 ```
 
+---
 
 ## Summary and Next Steps
 Now you have successfully tried the recsys workflows of BigDL to build an end-to-end pipeline for Wide & Deep model.
