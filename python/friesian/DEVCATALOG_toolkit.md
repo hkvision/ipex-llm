@@ -75,8 +75,7 @@ cd ../..
 
 ## Prepare Training Workflow Environment Using Docker
 Follow these instructions to set up and run our provided Docker image.
-For running the training workflow on bare metal, see the [bare metal instructions](#run-training-workflow-using-bare-metal)
-instructions.
+For running the training workflow on bare metal, see the [bare metal instructions](#Prepare-Training-Workflow-Environment-Using-Bare-Metal).
 
 ### Set Up Docker Engine
 You'll need to install Docker Engine on your development system.
@@ -110,7 +109,7 @@ docker run -a stdout \
   --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
-  --privileged --init -it --rm --pull always \
+  --privileged --init -it --rm \
   intelanalytics/bigdl-orca:latest \
   bash
 ```
@@ -125,7 +124,7 @@ pip install intel-tensorflow==2.9.1
 ## Prepare Training Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running the training workflow with a provided Docker image, see the [Docker
-instructions](#run-training-workflow-using-docker).
+ instructions](#Prepare-Training-Workflow-Environment-Using-Docker).
 
 
 ### Set Up System Software
