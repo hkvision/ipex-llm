@@ -170,7 +170,7 @@ python train_2tower.py \
     --backend spark \
     --executor_cores 8 \
     --executor_memory 6g \
-    --data_dir apps/wide-deep-recommendation/recsys_data/preprocessed \
+    --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
     --batch_size 8000
 ```
