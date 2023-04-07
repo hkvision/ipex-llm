@@ -67,7 +67,7 @@ You are highly recommended to use the toolkit under the following system and sof
 
 ### 3.1 Prepare Training Workflow Environment Using Docker
 Follow these instructions to set up and run our provided Docker image.
-For running the training workflow on bare metal, see the [bare metal instructions](#32Prepare-Training-Workflow-Environment-Using-Bare-Metal).
+For running the training workflow on bare metal, see the [bare metal instructions](#32-Prepare-Training-Workflow-Environment-Using-Bare-Metal).
 
 **a. Set Up Docker Engine**
 
@@ -119,7 +119,7 @@ pip install tensorflow==2.9.0
 ### 3.2 Prepare Training Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running the training workflow with a provided Docker image, see the [Docker
- instructions](#31Prepare-Training-Workflow-Environment-Using-Docker).
+ instructions](#31-Prepare-Training-Workflow-Environment-Using-Docker).
 
 
 **a. Set Up System Software**
