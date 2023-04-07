@@ -162,8 +162,6 @@ python generate_dummy_data.py 100000 recsys_data/
 cd ../..
 ```
 
----
-
 ### 2. Run Training Workflow
 Use these commands to run the training workflow:
 ```
@@ -229,7 +227,6 @@ Training time is:  53.32298707962036
 ### Run Online Serving Pipeline Using Docker
 You are highly recommended to run the online serving pipeline for the recsys workflow using our provided Docker image.
 
-### Set Up Docker Image
 Pull the provided docker image.
 ```
 docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
@@ -248,7 +245,8 @@ export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
 
 Download & install [redis](https://redis.io/download/#redis-downloads)
 
-### Run Workflow
+**Run Workflow**
+
 - Run the nearline pipeline
 
 1. Flush all key-values in the redis
