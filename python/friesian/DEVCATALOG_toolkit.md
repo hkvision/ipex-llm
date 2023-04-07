@@ -44,13 +44,22 @@ The architecture above illustrates the main components in Intel® Recsys Toolkit
 
 ---
 
-## Installation
+## Get Started
 
-### 1. Download the Toolkit Repository
+### 1. Prerequisites
+
+You are highly recommended to use the toolkit under the following system and software settings:
+- OS: Linux or Mac
+- Python: 3.7, 3.8, 3.9
+
+
+### 2. Download the Toolkit Repository
 
 Create a working directory for the workflow of Intel® Recsys Toolkit and clone the [Main
 Repository](https://github.com/intel-analytics/BigDL) repository into your working
-directory. Intel® Recsys Toolkit is included in the BigDL project.
+directory. Intel® Recsys Toolkit is included in the BigDL project and
+this step downloads the example scripts in BigDL to demonstrate the toolkit.
+Follow the steps in the next section to easily install Intel® Recsys Toolkit via [Docker](#31-install-from-docker) or [pip](#32-install-from-pypi-on-bare-metal).
 
 ```
 mkdir ~/work && cd ~/work
@@ -58,16 +67,11 @@ git clone https://github.com/intel-analytics/BigDL.git
 cd BigDL
 ```
 
-### 2. Software Settings
+### 3. Installation
 
-You are highly recommended to use the toolkit under the following system and software settings:
-- OS: Linux or Mac
-- Python: 3.7, 3.8 or 3.9
-
-
-### 3.1 Prepare Training Workflow Environment Using Docker
+#### 3.1 Install from Docker
 Follow these instructions to set up and run our provided Docker image.
-For running the training workflow on bare metal, see the [bare metal instructions](#32-Prepare-Training-Workflow-Environment-Using-Bare-Metal).
+For running the training workflow on bare metal, see the [bare metal instructions](#32-install-from-pypi-on-bare-metal).
 
 **a. Set Up Docker Engine**
 
@@ -116,10 +120,10 @@ pip install tensorflow==2.9.0
 ```
 
 
-### 3.2 Prepare Training Workflow Environment Using Bare Metal
+#### 3.2 Install from Pypi on Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running the training workflow with a provided Docker image, see the [Docker
- instructions](#31-Prepare-Training-Workflow-Environment-Using-Docker).
+ instructions](#31-install-from-docker).
 
 
 **a. Set Up System Software**
@@ -138,23 +142,29 @@ pip install --pre --upgrade bigdl-friesian
 pip install tensorflow==2.9.0
 ```
 
-### 4. Download the Datasets
+---
 
-This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/), each record of which contains the tweet along with engagement features, user features, and tweet features.
+## How To Run
+
+### 1. Download the Datasets
+
+This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/) as an example, each record of which contains the tweet along with engagement features, user features, and tweet features.
 
 The original dataset includes 46 million users and 340 million tweets (items). Here in this workflow, we provide a script to generate some dummy data for this dataset. In the running command below, you can specify the number of records to generate and the output folder respectively.
 
 ```
 cd apps/wide-deep-recommendation
 mkdir recsys_data
+
 # You can modify the number of records and the output folder when running the script
 python generate_dummy_data.py 100000 recsys_data/
+
 cd ../..
 ```
 
 ---
 
-## Run Training Workflow
+### 2. Run Training Workflow
 Use these commands to run the training workflow:
 ```
 python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
@@ -186,7 +196,8 @@ python train_2tower.py \
     --batch_size 8000
 ```
 
-## Expected Training Workflow Output
+**Expected Training Workflow Output**
+
 Check out the processed data and saved models of the workflow:
 ```
 ll apps/wide-deep-recommendation/recsys_data/preprocessed
@@ -214,9 +225,8 @@ Training time is:  53.32298707962036
 10/10 [==============================] - 7s 487ms/step - loss: 0.3262 - binary_accuracy: 0.8503 - recall: 0.8998 - auc: 0.5002 - val_loss: 0.2405 - val_binary_accuracy: 0.9352 - val_recall: 1.0000 - val_auc: 0.4965
 ```
 
----
 
-## Run Online Serving Pipeline Using Docker
+### Run Online Serving Pipeline Using Docker
 You are highly recommended to run the online serving pipeline for the recsys workflow using our provided Docker image.
 
 ### Set Up Docker Image
