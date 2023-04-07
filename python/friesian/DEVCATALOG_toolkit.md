@@ -163,6 +163,9 @@ cd ../..
 ```
 
 ### 2. Run Training Workflow
+
+The training workflow of the tooklit will preprocess the dataset, train the Wide & Deep Learning and two-tower model with the processed data.
+
 Use these commands to run the training workflow:
 ```
 python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
@@ -225,7 +228,9 @@ Training time is:  53.32298707962036
 
 
 ### Run Online Serving Pipeline Using Docker
-You are highly recommended to run the online serving pipeline for the recsys workflow using our provided Docker image.
+After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of the toolkit.
+
+You are highly recommended to run the online serving pipeline using our provided Docker image.
 
 Pull the provided docker image.
 ```
