@@ -1,9 +1,9 @@
 # Building Recommender Systems with Intel® Recsys Toolkit
 
-Use Intel® Recsys Toolkit, BigDL Friesian, to easily build large-scale distributed training and online serving
-pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution with Wide & Deep Learning model.
+Use Intel® Recsys Toolkit, also known as BigDL Friesian, to easily build large-scale distributed training and online serving
+pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution for the Wide & Deep Learning workflow.
 
-Check out more workflow examples and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
+Check out more toolkits and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
 
 ## Overview
 Building an end-to-end recommender system that meets production demands from scratch could be rather challenging.
@@ -18,8 +18,8 @@ Highlights and benefits of Intel® Recsys Toolkit are as follows:
 - Implement a complete, highly available and scalable pipeline for online serving (including recall and ranking) with low latency.
 - Include out-of-box reference use cases of many popular recommendation algorithms.
 
-For more details, visit the BigDL Friesian [GitHub repository](https://github.com/intel-analytics/BigDL/tree/main/python/friesian) and
-[documentation page](https://bigdl.readthedocs.io/en/latest/doc/Friesian/index.html).
+Intel® Recsys Toolkit is a domain-specific submodule in BigDL focusing on recommendation workloads, visit the BigDL Friesian [GitHub repository](https://github.com/intel-analytics/BigDL/tree/main/python/friesian) and
+[documentation page](https://bigdl.readthedocs.io/en/latest/doc/Friesian/index.html) for more details.
 
 ## Hardware Requirements
 
@@ -44,11 +44,13 @@ The architecture above illustrates the main components in Intel® Recsys Toolkit
 
 ---
 
-## Download the Toolkit Repository
+## Installation
 
-Create a working directory for the workflow of the toolkit and clone the [Main
+### 1. Download the Toolkit Repository
+
+Create a working directory for the workflow of Intel® Recsys Toolkit and clone the [Main
 Repository](https://github.com/intel-analytics/BigDL) repository into your working
-directory.
+directory. Intel® Recsys Toolkit is included in the BigDL project.
 
 ```
 mkdir ~/work && cd ~/work
@@ -56,12 +58,19 @@ git clone https://github.com/intel-analytics/BigDL.git
 cd BigDL
 ```
 
+### 2. Software Settings
 
-## Prepare Training Workflow Environment Using Docker
+You are highly recommended to use the toolkit under the following system and software settings:
+- OS: Linux or Mac
+- Python: 3.7, 3.8 or 3.9
+
+
+### 3.1 Prepare Training Workflow Environment Using Docker
 Follow these instructions to set up and run our provided Docker image.
 For running the training workflow on bare metal, see the [bare metal instructions](#Prepare-Training-Workflow-Environment-Using-Bare-Metal).
 
-### Set Up Docker Engine
+**a. Set Up Docker Engine**
+
 You'll need to install Docker Engine on your development system.
 Note that while **Docker Engine** is free to use, **Docker Desktop** may require
 you to purchase a license.  See the [Docker Engine Server installation
@@ -75,7 +84,8 @@ for Azure):
 - [Compute targets in Azure Machine Learning](https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-target)
 - [Virtual Machine Products Available in Your Region](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/?products=virtual-machines&regions=us-east)
 
-### Set Up Docker Image
+**b. Set Up Docker Image**
+
 Pull the provided docker image.
 ```
 docker pull intelanalytics/bigdl-orca:latest
@@ -84,7 +94,8 @@ docker pull intelanalytics/bigdl-orca:latest
 If your environment requires a proxy to access the internet, export your
 development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
 
-### Create Docker Container
+**c. Create Docker Container**
+
 Create the docker container for BigDL using the ``docker run`` command, as shown below:
 ```
 docker run -a stdout \
@@ -98,34 +109,36 @@ docker run -a stdout \
   bash
 ```
 
-### Install Packages in Docker Container
+**d. Install Packages in Docker Container**
 Run these commands to install additional software used for the workflow in the docker container:
 ```
-pip install intel-tensorflow==2.9.1
+pip install tensorflow==2.9.0
 ```
 
 
-## Prepare Training Workflow Environment Using Bare Metal
+### 3.2 Prepare Training Workflow Environment Using Bare Metal
 Follow these instructions to set up and run this workflow on your own development
 system. For running the training workflow with a provided Docker image, see the [Docker
  instructions](#Prepare-Training-Workflow-Environment-Using-Docker).
 
 
-### Set Up System Software
+**a. Set Up System Software**
+
 Our examples use the ``conda`` package and environment on your local computer.
 If you don't already have ``conda`` installed, see the [Conda Linux installation
 instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html).
 
-### Set Up Workflow
+**b. Install Packages in Conda Environment**
+
 Run these commands to set up the workflow's ``conda`` environment and install required software:
 ```
 conda create -n recsys python=3.9 --yes
 conda activate recsys
 pip install --pre --upgrade bigdl-friesian
-pip install intel-tensorflow==2.9.1
+pip install tensorflow==2.9.0
 ```
 
-### Download the Datasets
+### 4. Download the Datasets
 
 This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/), each record of which contains the tweet along with engagement features, user features, and tweet features.
 
