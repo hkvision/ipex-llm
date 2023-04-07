@@ -9,7 +9,7 @@ Check out more toolkits and reference implementations in the [Developer Catalog]
 Building an end-to-end recommender system that meets production demands from scratch could be rather challenging.
 Intel® Recsys Toolkit, i.e. BigDL Friesian, can greatly help relieve the efforts of building distributed offline training
 and online serving pipelines. The recommendation solutions built with the toolkit are optimized on Intel® Xeon
-and could be directly deployed on large clusters to handle production big data.
+and could be directly deployed on existing large clusters to handle production big data.
 
 Highlights and benefits of Intel® Recsys Toolkit are as follows:
 
@@ -90,13 +90,13 @@ for Azure):
 
 **b. Set Up Docker Image**
 
-Pull the provided docker image.
+Pull the provided docker image:
 ```
 docker pull intelanalytics/bigdl-orca:latest
 ```
 
-If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
+If your environment requires a proxy to access the Internet, export your
+development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container in the next step.
 
 **c. Create Docker Container**
 
@@ -114,6 +114,7 @@ docker run -a stdout \
 ```
 
 **d. Install Packages in Docker Container**
+
 Run these commands to install additional software used for the workflow in the docker container:
 ```
 pip install tensorflow==2.9.0
@@ -148,9 +149,9 @@ pip install tensorflow==2.9.0
 
 ### 1. Download the Datasets
 
-This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/) as an example, each record of which contains the tweet along with engagement features, user features, and tweet features.
+This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/) as an example. In this dataset, each record contains the tweet along with engagement features, user features, and tweet features.
 
-The original dataset includes 46 million users and 340 million tweets (items). Here in this workflow, we provide a script to generate some dummy data for this dataset. In the running command below, you can specify the number of records to generate and the output folder respectively.
+The original dataset includes 46 million users and 340 million tweets (items). Alternatively, here we provide a script to generate some dummy data for this dataset. In the running command below, you can specify the number of records to generate and the output folder respectively.
 
 ```
 cd apps/wide-deep-recommendation
@@ -164,7 +165,7 @@ cd ../..
 
 ### 2. Run Training Workflow
 
-The training workflow of the tooklit will preprocess the dataset, train the Wide & Deep Learning and two-tower model with the processed data.
+The training workflow of the tooklit will preprocess the dataset, train the Wide & Deep Learning model (for ranking) and two-tower model (for embeddings) with the processed data.
 
 Use these commands to run the training workflow:
 ```
@@ -199,7 +200,7 @@ python train_2tower.py \
 
 **Expected Training Workflow Output**
 
-Check out the processed data and saved models of the workflow:
+Check out the processed data and saved models after the training:
 ```
 ll apps/wide-deep-recommendation/recsys_data/preprocessed
 ll recsys_wnd/
@@ -232,20 +233,8 @@ After completing the training pipeline, you can use the trained model to deploy 
 
 You are highly recommended to run the online serving pipeline using our provided Docker image.
 
-Pull the provided docker image.
 ```
 docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
-```
-
-If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment:
-```
-export DOCKER_RUN_ENVS="-e ftp_proxy=${ftp_proxy} \
-  -e FTP_PROXY=${FTP_PROXY} -e http_proxy=${http_proxy} \
-  -e HTTP_PROXY=${HTTP_PROXY} -e https_proxy=${https_proxy} \
-  -e HTTPS_PROXY=${HTTPS_PROXY} -e no_proxy=${no_proxy} \
-  -e NO_PROXY=${NO_PROXY} -e socks_proxy=${socks_proxy} \
-  -e SOCKS_PROXY=${SOCKS_PROXY}"
 ```
 
 Download & install [redis](https://redis.io/download/#redis-downloads)
@@ -342,7 +331,7 @@ See [here](https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-serv
 ---
 
 ## Summary and Next Steps
-This page demonstrates how to use Intel® Recsys Toolkit to build end-to-end training and serving pipelines for Wide & Deep model.
+This page demonstrates how to use Intel® Recsys Toolkit to build end-to-end training and serving pipelines for Wide & Deep Learning model.
 You can continue to explore more use cases or recommendation models provided in the toolkit or try to use the toolkit to build
 the recommender system on your own dataset!
 
@@ -350,7 +339,7 @@ the recommender system on your own dataset!
 For more information about Intel® Recsys Toolkit or to read about other relevant workflow
 examples, see these guides and software resources:
 
-- More recommendation models in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
+- More recommendation models and use cases in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
 - Online serving guidance in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Azure Machine Learning Documentation](https://learn.microsoft.com/en-us/azure/machine-learning/)
