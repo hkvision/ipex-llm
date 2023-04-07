@@ -13,10 +13,10 @@ and could be directly deployed on large clusters to handle production big data.
 
 Highlights and benefits of Intel® Recsys Toolkit are as follows:
 
-- Provide various built-in distributed feature engineering operations to efficient process user and item features.
+- Provide various built-in distributed feature engineering operations to efficiently process user and item features.
 - Support the distributed training of any standard TensorFlow or PyTorch model. 
 - Implement a complete, highly available and scalable pipeline for online serving (including recall and ranking) with low latency.
-- Include out-of-use reference use cases of many popular recommendation algorithms.
+- Include out-of-box reference use cases of many popular recommendation algorithms.
 
 For more details, visit the BigDL Friesian [GitHub repository](https://github.com/intel-analytics/BigDL/tree/main/python/friesian) and
 [documentation page](https://bigdl.readthedocs.io/en/latest/doc/Friesian/index.html).
@@ -44,10 +44,9 @@ The architecture above illustrates the main components in Intel® Recsys Toolkit
 
 ---
 
-## Get Started
+## Download the Toolkit Repository
 
-### Download the Workflow Repository
-Create a working directory for the workflow and clone the [Main
+Create a working directory for the workflow of the toolkit and clone the [Main
 Repository](https://github.com/intel-analytics/BigDL) repository into your working
 directory.
 
@@ -57,21 +56,6 @@ git clone https://github.com/intel-analytics/BigDL.git
 cd BigDL
 ```
 
-### Download the Datasets
-
-This workflow uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/), each record of which contains the tweet along with engagement features, user features, and tweet features.
-
-The original dataset includes 46 million users and 340 million tweets (items). Here in this workflow, we provide a script to generate some dummy data for this dataset. In the running command below, you can specify the number of records to generate and the output folder respectively.
-
-```
-cd apps/wide-deep-recommendation
-mkdir recsys_data
-# You can modify the number of records and the output folder when running the script
-python generate_dummy_data.py 100000 recsys_data/
-cd ../..
-```
-
----
 
 ## Prepare Training Workflow Environment Using Docker
 Follow these instructions to set up and run our provided Docker image.
@@ -139,6 +123,20 @@ conda create -n recsys python=3.9 --yes
 conda activate recsys
 pip install --pre --upgrade bigdl-friesian
 pip install intel-tensorflow==2.9.1
+```
+
+### Download the Datasets
+
+This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](http://www.recsyschallenge.com/2021/), each record of which contains the tweet along with engagement features, user features, and tweet features.
+
+The original dataset includes 46 million users and 340 million tweets (items). Here in this workflow, we provide a script to generate some dummy data for this dataset. In the running command below, you can specify the number of records to generate and the output folder respectively.
+
+```
+cd apps/wide-deep-recommendation
+mkdir recsys_data
+# You can modify the number of records and the output folder when running the script
+python generate_dummy_data.py 100000 recsys_data/
+cd ../..
 ```
 
 ---
