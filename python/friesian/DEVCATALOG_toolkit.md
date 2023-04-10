@@ -139,7 +139,7 @@ Run these commands to set up the workflow's ``conda`` environment and install re
 ```
 conda create -n recsys python=3.9 --yes
 conda activate recsys
-pip install --pre --upgrade bigdl-friesian
+pip install --pre --upgrade bigdl-friesian-spark3
 pip install tensorflow==2.9.0
 ```
 
@@ -230,6 +230,8 @@ Training time is:  53.32298707962036
 
 
 ### Run Online Serving Pipeline Using Docker
+
+#### Pull Docker Image
 After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of the toolkit.
 
 You are highly recommended to run the online serving pipeline using our provided Docker image.
@@ -238,9 +240,17 @@ You are highly recommended to run the online serving pipeline using our provided
 docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```
 
-Download & install [redis](https://redis.io/download/#redis-downloads)
+### Download & install [redis](https://redis.io/download/#redis-downloads)
 
-**Run Workflow**
+```bsah
+wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
+tar -xzf 7.2-rc1.tar.gz
+cd 7.2-rc1.tar.gz && make
+sudo apt-get install redis-server
+redis-server &
+```
+
+#### Run Workflow
 
 - Run the nearline pipeline
 
@@ -303,8 +313,8 @@ curl http://localhost:8000/recommender/recommend/99999
 Output:
 ```bash
 {
-  "ids" : [ 640, 494, 90, 481, 772, 314, 6, 272, 176, 284 ],
-  "probs" : [ 0.80175865, 0.6995631, 0.6851486, 0.6811177, 0.67750615, 0.67231035, 0.6655403, 0.65543735, 0.6547779, 0.6547779 ],
+  "ids" : [ 49498, 90939, 9237, 37407, 18638, 10772, 83555, 1175, 41118, 56338 ],
+  "probs" : [ 0.8125731, 0.7951641, 0.78238714, 0.7734338, 0.7725358, 0.7724836, 0.7694705, 0.76804805, 0.76270276, 0.76186526 ],
   "success" : true,
   "errorCode" : null,
   "errorMsg" : null
