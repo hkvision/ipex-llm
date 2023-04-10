@@ -195,7 +195,8 @@ python train_2tower.py \
     --executor_memory 6g \
     --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
-    --batch_size 8000
+    --batch_size 8000 \
+    --frequency_limit 1
 ```
 
 **Expected Training Workflow Output**
@@ -258,13 +259,8 @@ Output:
 
 3. Run the following script to launch the nearline pipeline
 ```bash
-docker_name=intelanalytics/friesian-serving:2.2.0-SNAPSHOT
-
-docker run -it --net host --rm -v $(pwd):/opt/work/mnt $docker_name feature-init -c mnt/nearline/config_feature.yaml
-
-docker run -it --net host --rm -v $(pwd):/opt/work/mnt $docker_name feature-init -c mnt/nearline/config_feature_vec.yaml
-
-docker run -it --net host --rm -v $(pwd):/opt/work/mnt $docker_name recall-init -c mnt/nearline/config_recall.yaml
+chmod +x ./run_nearline.sh
+./run_nearline.sh
 ```
 
 4. Check the redis-server status
@@ -274,33 +270,25 @@ redis-cli info keyspace
 Output:
 ```bash
 # Keyspace
-db0:keys=2003,expires=0,avg_ttl=0
+db0:keys=300003,expires=0,avg_ttl=0
 ```
 
 5. Check the existance of the generated faiss index
 ```bash
-item_50.idx
+item_128.idx
 ```
 
 - Run the online pipeline
 1. Run the following script to launch the online pipeline
 ```bash
-docker_name=intelanalytics/friesian-serving:2.2.0-SNAPSHOT
-
-docker run -itd --net host  --rm --name ranking -v $(pwd):/opt/work/mnt -e OMP_NUM_THREADS=1 $docker_name ranking -c mnt/config_ranking.yaml
-
-docker run -itd --net host --rm --name feature -v $(pwd):/opt/work/mnt $docker_name feature -c mnt/config_feature.yaml
-
-docker run -itd --net host --rm --name feature_recall -v $(pwd):/opt/work/mnt $docker_name feature -c mnt/config_feature_vec.yaml
-
-docker run -itd --net host --rm --name recall -v $(pwd):/opt/work/mnt $docker_name recall -c mnt/config_recall.yaml
-
-#docker run -itd --net host --rm --name recommender -v $(pwd):/opt/work/mnt $docker_name recommender -c mnt/config_recommender.yaml
-
-docker run -itd --net host  --rm --name recommender_http -v $(pwd):/opt/work/mnt $docker_name recommender-http -c mnt/config_recommender.yaml -p 8000
+chmod +x ./run_online.sh
+./run_online.sh
 ```
 
 2. Check the status of the containers
+```bash
+docker container ls
+```
 - There are 5 containers running:
     - recommender_http
     - recall
@@ -310,7 +298,7 @@ docker run -itd --net host  --rm --name recommender_http -v $(pwd):/opt/work/mnt
 
 3. Confirm the application is accessible
 ```bash
-curl http://localhost:8000/recommender/recommend/15
+curl http://localhost:8000/recommender/recommend/99999
 ```
 Output:
 ```bash
