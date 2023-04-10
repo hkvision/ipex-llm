@@ -246,8 +246,7 @@ docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
 tar -xzf 7.2-rc1.tar.gz
 cd 7.2-rc1.tar.gz && make
-sudo apt-get install redis-server
-redis-server &
+src/redis-server &
 ```
 
 #### Run Workflow
