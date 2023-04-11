@@ -113,6 +113,8 @@ docker run -a stdout \
   bash
 ```
 
+Type `Ctrl+D` or `exit` to exit the container when you finish running the workflow.
+
 **d. Install Packages in Docker Container**
 
 Run these commands to install additional software used for the workflow in the docker container:
@@ -262,6 +264,7 @@ src/redis-server &
 cd /path/to/BigDL/
 cp -r recsys_wnd scala/friesian/
 cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet scala/friesian/
+cd scala/friesian/
 ```
 
 #### Run Workflow
