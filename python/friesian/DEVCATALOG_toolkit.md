@@ -113,6 +113,8 @@ docker run -a stdout \
   bash
 ```
 
+Type `Ctrl+D` or `exit` to exit the container when you finish running the workflow.
+
 **d. Install Packages in Docker Container**
 
 Run these commands to install additional software used for the workflow in the docker container:
@@ -139,7 +141,7 @@ Run these commands to set up the workflow's ``conda`` environment and install re
 ```
 conda create -n recsys python=3.9 --yes
 conda activate recsys
-pip install --pre --upgrade bigdl-friesian
+pip install --pre --upgrade bigdl-friesian-spark3
 pip install tensorflow==2.9.0
 ```
 
@@ -196,15 +198,23 @@ python train_2tower.py \
     --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
     --batch_size 8000
+
+python predict_2tower.py \
+    --backend spark \
+    --executor_cores 8 \
+    --executor_memory 6g \
+    --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
+    --model_dir recsys_2tower/
 ```
 
 **Expected Training Workflow Output**
 
 Check out the processed data and saved models after the training:
 ```
+cd /path/to/BigDL
 ll apps/wide-deep-recommendation/recsys_data/preprocessed
 ll recsys_wnd/
-ll recsys_2tower/
+ll python/friesian/example/two_tower/recsys_2tower/
 ```
 Check out the logs of the console for training results:
 
@@ -229,6 +239,8 @@ Training time is:  53.32298707962036
 
 
 ### Run Online Serving Pipeline Using Docker
+
+#### Pull Docker Image
 After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of the toolkit.
 
 You are highly recommended to run the online serving pipeline using our provided Docker image.
@@ -237,9 +249,25 @@ You are highly recommended to run the online serving pipeline using our provided
 docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```
 
-Download & install [redis](https://redis.io/download/#redis-downloads)
+#### Download & install [redis](https://redis.io/download/#redis-downloads)
 
-**Run Workflow**
+```bsah
+wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
+tar -xzf 7.2-rc1.tar.gz
+cd 7.2-rc1.tar.gz && make
+src/redis-server &
+```
+
+#### Copy processed data and saved models
+
+```bash
+cd /path/to/BigDL/
+cp -r recsys_wnd scala/friesian/
+cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet scala/friesian/
+cd scala/friesian/
+```
+
+#### Run Workflow
 
 - Run the nearline pipeline
 
@@ -258,13 +286,7 @@ Output:
 
 3. Run the following script to launch the nearline pipeline
 ```bash
-docker_name=intelanalytics/friesian-serving:2.2.0-SNAPSHOT
-
-docker run -it --net host --rm -v $(pwd):/opt/work/mnt $docker_name feature-init -c mnt/nearline/config_feature.yaml
-
-docker run -it --net host --rm -v $(pwd):/opt/work/mnt $docker_name feature-init -c mnt/nearline/config_feature_vec.yaml
-
-docker run -it --net host --rm -v $(pwd):/opt/work/mnt $docker_name recall-init -c mnt/nearline/config_recall.yaml
+bash scripts/run_nearline.sh
 ```
 
 4. Check the redis-server status
@@ -274,33 +296,29 @@ redis-cli info keyspace
 Output:
 ```bash
 # Keyspace
-db0:keys=2003,expires=0,avg_ttl=0
+db0:keys=300003,expires=0,avg_ttl=0
 ```
 
 5. Check the existance of the generated faiss index
 ```bash
-item_50.idx
+ls -la item_128.idx
 ```
 
 - Run the online pipeline
-1. Run the following script to launch the online pipeline
+1. If your environment requires a proxy to access the Internet, unset it before running the online pipeline
 ```bash
-docker_name=intelanalytics/friesian-serving:2.2.0-SNAPSHOT
-
-docker run -itd --net host  --rm --name ranking -v $(pwd):/opt/work/mnt -e OMP_NUM_THREADS=1 $docker_name ranking -c mnt/config_ranking.yaml
-
-docker run -itd --net host --rm --name feature -v $(pwd):/opt/work/mnt $docker_name feature -c mnt/config_feature.yaml
-
-docker run -itd --net host --rm --name feature_recall -v $(pwd):/opt/work/mnt $docker_name feature -c mnt/config_feature_vec.yaml
-
-docker run -itd --net host --rm --name recall -v $(pwd):/opt/work/mnt $docker_name recall -c mnt/config_recall.yaml
-
-#docker run -itd --net host --rm --name recommender -v $(pwd):/opt/work/mnt $docker_name recommender -c mnt/config_recommender.yaml
-
-docker run -itd --net host  --rm --name recommender_http -v $(pwd):/opt/work/mnt $docker_name recommender-http -c mnt/config_recommender.yaml -p 8000
+unset http_proxy https_proxy
 ```
 
-2. Check the status of the containers
+2. Run the following script to launch the online pipeline
+```bash
+bash scripts/run_online.sh
+```
+
+3. Check the status of the containers
+```bash
+docker container ls
+```
 - There are 5 containers running:
     - recommender_http
     - recall
@@ -308,15 +326,15 @@ docker run -itd --net host  --rm --name recommender_http -v $(pwd):/opt/work/mnt
     - feature
     - ranking
 
-3. Confirm the application is accessible
+4. Confirm the application is accessible
 ```bash
-curl http://localhost:8000/recommender/recommend/15
+curl http://localhost:8000/recommender/recommend/99999
 ```
 Output:
 ```bash
 {
-  "ids" : [ 640, 494, 90, 481, 772, 314, 6, 272, 176, 284 ],
-  "probs" : [ 0.80175865, 0.6995631, 0.6851486, 0.6811177, 0.67750615, 0.67231035, 0.6655403, 0.65543735, 0.6547779, 0.6547779 ],
+  "ids" : [ 49498, 90939, 9237, 37407, 18638, 10772, 83555, 1175, 41118, 56338 ],
+  "probs" : [ 0.8125731, 0.7951641, 0.78238714, 0.7734338, 0.7725358, 0.7724836, 0.7694705, 0.76804805, 0.76270276, 0.76186526 ],
   "success" : true,
   "errorCode" : null,
   "errorMsg" : null
