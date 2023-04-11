@@ -90,17 +90,17 @@ for Azure):
 
 **b. Set Up Docker Image**
 
-Pull the provided docker image:
+Pull the provided Docker image:
 ```
 docker pull intelanalytics/bigdl-orca:latest
 ```
 
 If your environment requires a proxy to access the Internet, export your
-development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container in the next step.
+development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container in the next step.
 
 **c. Create Docker Container**
 
-Create the docker container for BigDL using the ``docker run`` command, as shown below:
+Create the Docker container for BigDL using the ``docker run`` command, as shown below:
 ```
 docker run -a stdout \
   --env http_proxy=${http_proxy} \
@@ -113,11 +113,9 @@ docker run -a stdout \
   bash
 ```
 
-Type `Ctrl+D` or `exit` to exit the container when you finish running the workflow.
-
 **d. Install Packages in Docker Container**
 
-Run these commands to install additional software used for the workflow in the docker container:
+Run these commands to install additional software used for the workflow in the Docker container:
 ```
 pip install tensorflow==2.9.0
 ```
@@ -240,42 +238,49 @@ Training time is:  53.32298707962036
 
 ### Run Online Serving Pipeline Using Docker
 
-#### Pull Docker Image
 After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of the toolkit.
 
 You are highly recommended to run the online serving pipeline using our provided Docker image.
+
+Note that we have already prepared scripts to easily launch the Docker containers for online serving. You need to run the following steps on bare metal to start the online services. If you run the training pipeline in the Docker image, type `Ctrl+D` or `exit` to exit the container and go back to your development system.
+
+
+**a. Set Up Docker Image**
+Pull the provided Docker image:
 
 ```
 docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```
 
-#### Download & install [redis](https://redis.io/download/#redis-downloads)
 
-```bsah
+**b. Download & install [redis](https://redis.io/download/#redis-downloads)**
+
+```bash
 wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
 tar -xzf 7.2-rc1.tar.gz
 cd 7.2-rc1.tar.gz && make
 src/redis-server &
 ```
 
-#### Copy processed data and saved models
+**c. Prepare model and data**
+
+Copy the trained model and processed features to the folder where we run the serving scripts.
 
 ```bash
-cd /path/to/BigDL/
+cd ~/work/BigDL/
 cp -r recsys_wnd scala/friesian/
 cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet scala/friesian/
 cd scala/friesian/
 ```
 
-#### Run Workflow
+**d. Run Workflow**
 
-- Run the nearline pipeline
-
-1. Flush all key-values in the redis
+1. Flush all key-values in the redis:
 ```bash
 redis-cli flushall
 ```
-2. Check the initial redis status
+
+2. Check the initial redis status:
 ```bash
 redis-cli info keyspace
 ```
@@ -284,12 +289,12 @@ Output:
 # Keyspace
 ```
 
-3. Run the following script to launch the nearline pipeline
+3. Run the following script to launch the nearline pipeline:
 ```bash
 bash scripts/run_nearline.sh
 ```
 
-4. Check the redis-server status
+4. Check the redis-server status:
 ```bash
 redis-cli info keyspace
 ```
@@ -299,34 +304,33 @@ Output:
 db0:keys=300003,expires=0,avg_ttl=0
 ```
 
-5. Check the existance of the generated faiss index
+5. Check the existence of the generated [Faiss](https://github.com/facebookresearch/faiss) index for vector search:
 ```bash
 ls -la item_128.idx
 ```
 
-- Run the online pipeline
-1. If your environment requires a proxy to access the Internet, unset it before running the online pipeline
+6. If your environment requires a proxy to access the Internet, unset it before running the online pipeline:
 ```bash
 unset http_proxy https_proxy
 ```
 
-2. Run the following script to launch the online pipeline
+7. Run the following script to launch the online pipeline:
 ```bash
 bash scripts/run_online.sh
 ```
 
-3. Check the status of the containers
+8. Check the status of the containers:
 ```bash
 docker container ls
 ```
-- There are 5 containers running:
+- There should be 5 containers running:
     - recommender_http
     - recall
     - feature_recall
     - feature
     - ranking
 
-4. Confirm the application is accessible
+9. Confirm the application is accessible
 ```bash
 curl http://localhost:8000/recommender/recommend/99999
 ```
@@ -342,10 +346,6 @@ Output:
 ```
 
 
-See [here](https://github.com/intel-analytics/BigDL/tree/main/scala/friesian) for more detailed guidance to run the online serving workflow.
-
-See [here](https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm) to deploy the serving workflow on a Kubernetes cluster.
-
 ---
 
 ## Summary and Next Steps
@@ -359,6 +359,8 @@ examples, see these guides and software resources:
 
 - More recommendation models and use cases in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
 - Online serving guidance in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
+- To scale the training workflow of the recsys toolkit to Kubernetes clusters: https://bigdl.readthedocs.io/en/latest/doc/Orca/Tutorial/k8s.html
+- To scale the online serving workflow of the recsys tooklit to Kubernetes clusters: https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Azure Machine Learning Documentation](https://learn.microsoft.com/en-us/azure/machine-learning/)
 
