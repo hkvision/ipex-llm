@@ -324,12 +324,12 @@ bash scripts/run_online.sh
 ```bash
 docker container ls
 ```
-- There should be 5 containers running:
-    - recommender_http
-    - recall
-    - feature_recall
-    - feature
-    - ranking
+There should be 5 containers running:
+- recommender_http
+- recall
+- feature_recall
+- feature
+- ranking
 
 9. Confirm the application is accessible
 ```bash
