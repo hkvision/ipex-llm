@@ -267,7 +267,6 @@ Output:
 
 3. Run the following script to launch the nearline pipeline
 ```bash
-chmod +x ./run_nearline.sh
 bash ./run_nearline.sh
 ```
 
@@ -287,13 +286,17 @@ ls -la item_128.idx
 ```
 
 - Run the online pipeline
-1. Run the following script to launch the online pipeline
+1. If your environment requires a proxy to access the Internet, unset it before running the online pipeline
 ```bash
-chmod +x ./run_online.sh
+unset http_proxy https_proxy
+```
+
+2. Run the following script to launch the online pipeline
+```bash
 bash ./run_online.sh
 ```
 
-2. Check the status of the containers
+3. Check the status of the containers
 ```bash
 docker container ls
 ```
@@ -304,7 +307,7 @@ docker container ls
     - feature
     - ranking
 
-3. Confirm the application is accessible
+4. Confirm the application is accessible
 ```bash
 curl http://localhost:8000/recommender/recommend/99999
 ```
