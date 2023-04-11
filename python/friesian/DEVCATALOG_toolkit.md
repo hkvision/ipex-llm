@@ -201,6 +201,7 @@ python predict_2tower.py \
     --backend spark \
     --executor_cores 8 \
     --executor_memory 6g \
+    --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/
 ```
 
@@ -258,10 +259,9 @@ src/redis-server &
 #### Copy processed data and saved models
 
 ```bash
-cd /path/to/BigDL/scala/friesian/
-cp -r recsys_wnd ./
-cp -r python/friesian/example/two_tower/recsys_2tower/*.parquet ./
-cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet ./
+cd /path/to/BigDL/
+cp -r recsys_wnd scala/friesian/
+cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet scala/friesian/
 ```
 
 #### Run Workflow
