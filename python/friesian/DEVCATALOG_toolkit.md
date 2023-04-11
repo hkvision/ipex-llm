@@ -242,10 +242,11 @@ After completing the training pipeline, you can use the trained model to deploy 
 
 You are highly recommended to run the online serving pipeline using our provided Docker image.
 
-Note that we have already prepared scripts to easily launch the Docker containers for online serving. You need to run the following steps on bare metal to start the online services. If you run the training pipeline in the Docker image, type `Ctrl+D` or `exit` to exit the container and go back to your development system.
+Note that we have already prepared scripts to easily launch the Docker containers for online serving. You need to run the following steps on bare metal to start the online services. If you run the training pipeline in the Docker image, first type `Ctrl+D` or `exit` to exit the container and go back to your development system.
 
 
 **a. Set Up Docker Image**
+
 Pull the provided Docker image:
 
 ```
@@ -262,7 +263,7 @@ cd 7.2-rc1.tar.gz && make
 src/redis-server &
 ```
 
-**c. Prepare model and data**
+**c. Prepare model and features**
 
 Copy the trained model and processed features to the folder where we run the serving scripts.
 
