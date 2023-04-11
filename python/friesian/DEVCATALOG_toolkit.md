@@ -196,15 +196,22 @@ python train_2tower.py \
     --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
     --batch_size 8000
+
+python predict_2tower.py \
+    --backend spark \
+    --executor_cores 8 \
+    --executor_memory 6g \
+    --model_dir recsys_2tower/
 ```
 
 **Expected Training Workflow Output**
 
 Check out the processed data and saved models after the training:
 ```
+cd /path/to/BigDL
 ll apps/wide-deep-recommendation/recsys_data/preprocessed
 ll recsys_wnd/
-ll recsys_2tower/
+ll python/friesian/example/two_tower/recsys_2tower/
 ```
 Check out the logs of the console for training results:
 
@@ -239,13 +246,22 @@ You are highly recommended to run the online serving pipeline using our provided
 docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```
 
-### Download & install [redis](https://redis.io/download/#redis-downloads)
+#### Download & install [redis](https://redis.io/download/#redis-downloads)
 
 ```bsah
 wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
 tar -xzf 7.2-rc1.tar.gz
 cd 7.2-rc1.tar.gz && make
 src/redis-server &
+```
+
+#### Copy processed data and saved models
+
+```bash
+cd /path/to/BigDL/scala/friesian/
+cp -r recsys_wnd ./
+cp -r python/friesian/example/two_tower/recsys_2tower/*.parquet ./
+cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet ./
 ```
 
 #### Run Workflow
@@ -267,7 +283,7 @@ Output:
 
 3. Run the following script to launch the nearline pipeline
 ```bash
-bash ./run_nearline.sh
+bash scripts/run_nearline.sh
 ```
 
 4. Check the redis-server status
@@ -293,7 +309,7 @@ unset http_proxy https_proxy
 
 2. Run the following script to launch the online pipeline
 ```bash
-bash ./run_online.sh
+bash scripts/run_online.sh
 ```
 
 3. Check the status of the containers
