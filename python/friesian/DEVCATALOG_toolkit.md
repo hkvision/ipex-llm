@@ -195,8 +195,7 @@ python train_2tower.py \
     --executor_memory 6g \
     --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
     --model_dir recsys_2tower/ \
-    --batch_size 8000 \
-    --frequency_limit 1
+    --batch_size 8000
 ```
 
 **Expected Training Workflow Output**
@@ -269,7 +268,7 @@ Output:
 3. Run the following script to launch the nearline pipeline
 ```bash
 chmod +x ./run_nearline.sh
-./run_nearline.sh
+bash ./run_nearline.sh
 ```
 
 4. Check the redis-server status
@@ -284,14 +283,14 @@ db0:keys=300003,expires=0,avg_ttl=0
 
 5. Check the existance of the generated faiss index
 ```bash
-item_128.idx
+ls -la item_128.idx
 ```
 
 - Run the online pipeline
 1. Run the following script to launch the online pipeline
 ```bash
 chmod +x ./run_online.sh
-./run_online.sh
+bash ./run_online.sh
 ```
 
 2. Check the status of the containers
