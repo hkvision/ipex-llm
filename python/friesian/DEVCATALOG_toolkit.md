@@ -198,7 +198,7 @@ python predict_2tower.py \
     --executor_cores 8 \
     --executor_memory 6g \
     --data_dir ../wnd/recsys2021/recsys_data/preprocessed \
-    --model_dir ../wnd/recsys2021/recsys_2tower \
+    --model_dir recsys_2tower \
     --batch_size 8000
 ```
 
