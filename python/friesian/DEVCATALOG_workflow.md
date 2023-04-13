@@ -1,7 +1,7 @@
 # Distributed Training & Inference Workflows using BigDL 
 
 Learn to use BigDL to easily build and seamlessly scale distributed training and inference workflows
-for TensorFlow and PyTorch. This page takes the recsys workflows for Neural Collaborative Filtering (NCF) model as an example.
+for TensorFlow and PyTorch. This page takes the recsys workflows for Neural Collaborative Filtering (NCF) as an example.
 
 Check out more workflow examples and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
 
@@ -14,7 +14,7 @@ Highlights and benefits of BigDL are as follows:
 
 - Easily build efficient in-memory, distributed data analytics and AI pipelines that runs on a single Intel® Xeon cluster.
 - Seamlessly scale TensorFlow and PyTorch applications to big data platforms.
-- Direct deployment on production clusters including Hadoop/YARN and Kubernetes clusters.
+- Directly deploy solutions on production Hadoop/YARN and Kubernetes clusters.
 
 
 For more details, visit the BigDL [GitHub repository](https://github.com/intel-analytics/BigDL/tree/main) and
@@ -22,7 +22,7 @@ For more details, visit the BigDL [GitHub repository](https://github.com/intel-a
 
 ## Hardware Requirements
 
-BigDL and the workflow example shown below could be run widely on Intel® Xeon® series processors.
+BigDL and the workflow example shown below could run widely on Intel® Xeon® series processors.
 
 || Recommended Hardware         |
 |---| ---------------------------- |
@@ -45,10 +45,17 @@ The architecture above illustrates how BigDL can build end-to-end, distributed a
 
 ## Get Started
 
-### Download the Workflow Repository
-Create a working directory for the workflow and clone the [Main
+### 1. Prerequisites
+
+You are highly recommended to use the toolkit under the following system and software settings:
+- OS: Linux or Mac
+- Python: 3.7, 3.8, 3.9
+
+### 2. Download the Workflow Repository
+Create a working directory for the example workflow of BigDL and clone the [Main
 Repository](https://github.com/intel-analytics/BigDL) repository into your working
-directory.
+directory. This step downloads the example scripts in BigDL to demonstrate the workflow.
+Follow the steps in the next section to easily install BigDL via [Docker](#31-install-from-docker) or [pip](#32-install-from-pypi-on-bare-metal).
 
 ```
 mkdir ~/work && cd ~/work
@@ -56,23 +63,15 @@ git clone https://github.com/intel-analytics/BigDL.git
 cd BigDL
 ```
 
-### Download the Datasets
+### 3. Installation
+You can install BigDL either using our provided [Docker image](#31-install-from-docker) (recommended way) or on [bare metal](#32-install-from-pypi-on-bare-metal) according to your environment and preference.
 
-This workflow uses the [ml-100k dataset](https://grouplens.org/datasets/movielens/100k/) of [MovieLens](https://movielens.org/), which contains users' ratings for the movies.
-
-```
-cd python/orca/tutorial/NCF
-wget https://files.grouplens.org/datasets/movielens/ml-100k.zip
-unzip ml-100k.zip
-```
-
----
-
-## Prepare Workflow Environment Run Using Docker
+#### 3.1 Install from Docker
 Follow these instructions to set up and run our provided Docker image.
-For running on bare metal, see the [bare metal instructions](#Prepare-Workflow-Environment-Using-Bare-Metal).
+For running the training workflow on bare metal, see the [bare metal instructions](#32-install-from-pypi-on-bare-metal).
 
-### Set Up Docker Engine
+**a. Set Up Docker Engine**
+
 You'll need to install Docker Engine on your development system.
 Note that while **Docker Engine** is free to use, **Docker Desktop** may require
 you to purchase a license.  See the [Docker Engine Server installation
@@ -86,17 +85,19 @@ for Azure):
 - [Compute targets in Azure Machine Learning](https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-target)
 - [Virtual Machine Products Available in Your Region](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/?products=virtual-machines&regions=us-east)
 
-### Set Up Docker Image
-Pull the provided docker image.
+**b. Set Up Docker Image**
+
+Pull the provided Docker image:
 ```
 docker pull intelanalytics/bigdl-orca:latest
 ```
 
-If your environment requires a proxy to access the internet, export your
-development system's proxy settings to the docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
+If your environment requires a proxy to access the Internet, export your
+development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container in the next step.
 
-### Create Docker Container
-Run the workflow using the ``docker run`` command, as shown:
+**c. Create Docker Container**
+
+Create the Docker container for BigDL using the ``docker run`` command, as shown below:
 ```
 docker run -a stdout \
   --env http_proxy=${http_proxy} \
@@ -109,37 +110,53 @@ docker run -a stdout \
   bash
 ```
 
-### Install Packages in Docker Container
-Run these commands to install additional software used for the workflow in the docker container:
+**d. Install Packages in Docker Container**
+
+Run these commands to install additional software used for the workflow in the Docker container:
 ```
-pip install intel-tensorflow==2.9.1
+pip install tensorflow==2.9.0
 ```
 
 
-## Prepare Workflow Environment Using Bare Metal
+#### 3.2 Install from Pypi on Bare Metal
 Follow these instructions to set up and run this workflow on your own development
-system. For running a provided Docker image with Docker, see the [Docker
- instructions](#Prepare-Workflow-Environment-Run-Using-Docker).
+system. For running the training workflow with a provided Docker image, see the [Docker
+ instructions](#31-install-from-docker).
 
 
-### Set Up System Software
+**a. Set Up System Software**
+
 Our examples use the ``conda`` package and environment on your local computer.
-If you don't already have ``conda`` installed, see the [Conda Linux installation
+If you don't have ``conda`` installed, see the [Conda Linux installation
 instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html).
 
-### Set Up Workflow
+**b. Install Packages in Conda Environment**
+
 Run these commands to set up the workflow's ``conda`` environment and install required software:
 ```
 conda create -n bigdl python=3.9 --yes
 conda activate bigdl
 pip install --pre --upgrade bigdl-orca-spark3
-pip install intel-tensorflow==2.9.1
+pip install tensorflow==2.9.0
 ```
 
 ---
 
-## Run Workflow
-Use these commands to run the workflow:
+## How To Run
+
+### 1. Download the Datasets
+
+This workflow uses the [ml-100k dataset](https://grouplens.org/datasets/movielens/100k/) of [MovieLens](https://movielens.org/).
+
+```
+cd python/orca/tutorial/NCF
+wget https://files.grouplens.org/datasets/movielens/ml-100k.zip
+unzip ml-100k.zip
+```
+
+
+### 2. Run Workflow
+The workflow will perform distributed training and inference of the [Neural Collaborative Filtering](https://arxiv.org/abs/1708.05031) model. Use these commands to run the workflow:
 ```
 # Distributed training
 python tf_train_spark_dataframe.py --dataset ml-100k
@@ -148,8 +165,8 @@ python tf_train_spark_dataframe.py --dataset ml-100k
 python tf_predict_spark_dataframe.py --dataset ml-100k
 ```
 
-## Expected Output
-Check out the processed data and saved models of the workflow:
+## 3. Expected Output
+Check out the processed data, saved model and predictions of the workflow:
 ```
 ll train_processed_dataframe.parquet
 ll test_processed_dataframe.parquet
@@ -199,7 +216,7 @@ only showing top 5 rows
 ---
 
 ## Summary and Next Steps
-Now you have successfully tried the recsys workflows of BigDL to build an end-to-end pipeline for Wide & Deep model.
+Now you have successfully tried the recsys workflows of BigDL to build an end-to-end pipeline for Neural Collaborative Filtering model.
 You can continue to try other use cases provided in BigDL or build the training and inference workflows on your own dataset!
 
 ## Learn More
@@ -208,6 +225,7 @@ examples, see these guides and software resources:
 
 - More BigDL workflow examples for TensorFlow: https://github.com/intel-analytics/BigDL/tree/main/python/orca/example/learn/tf2
 - More BigDL workflow examples for PyTorch: https://github.com/intel-analytics/BigDL/tree/main/python/orca/example/learn/pytorch
+- To scale BigDL workflows to Kubernetes clusters: https://bigdl.readthedocs.io/en/latest/doc/Orca/Tutorial/k8s.html
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Azure Machine Learning Documentation](https://learn.microsoft.com/en-us/azure/machine-learning/)
 

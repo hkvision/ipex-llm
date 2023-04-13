@@ -1,7 +1,7 @@
 # Building Recommender Systems with Intel® Recsys Toolkit
 
 Use Intel® Recsys Toolkit, also known as BigDL Friesian, to easily build large-scale distributed training and online serving
-pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution for the [Wide & Deep Learning](https://arxiv.org/abs/1606.07792) workflow.
+pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution for the Wide & Deep Learning workflow.
 
 Check out more toolkits and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
 
@@ -164,7 +164,7 @@ python generate_dummy_data.py 100000 recsys_data/
 
 ### 2. Run Training Workflow
 
-The training workflow of Intel® Recsys Toolkit will preprocess the dataset, train the Wide & Deep Learning model (for ranking) and two-tower model (for embeddings) with the processed data.
+The training workflow of Intel® Recsys Toolkit will preprocess the dataset, train the [Wide & Deep Learning]([Wide & Deep Learning](https://arxiv.org/abs/1606.07792)) model (for ranking) and two-tower model (for embeddings) with the processed data.
 
 Use these commands to run the training workflow:
 ```
