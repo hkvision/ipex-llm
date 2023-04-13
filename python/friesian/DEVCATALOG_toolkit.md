@@ -1,7 +1,7 @@
 # Building Recommender Systems with Intel® Recsys Toolkit
 
 Use Intel® Recsys Toolkit, also known as BigDL Friesian, to easily build large-scale distributed training and online serving
-pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution for the Wide & Deep Learning workflow.
+pipelines for modern recommender systems. This page demonstrates how to use this toolkit to build a recommendation solution for the [Wide & Deep Learning](https://arxiv.org/abs/1606.07792) workflow.
 
 Check out more toolkits and reference implementations in the [Developer Catalog](https://developer.intel.com/aireferenceimplementations).
 
@@ -18,12 +18,12 @@ Highlights and benefits of Intel® Recsys Toolkit are as follows:
 - Implement a complete, highly available and scalable pipeline for online serving (including recall and ranking) with low latency.
 - Include out-of-box reference use cases of many popular recommendation algorithms.
 
-Intel® Recsys Toolkit is a domain-specific submodule in BigDL focusing on recommendation workloads, visit the BigDL Friesian [GitHub repository](https://github.com/intel-analytics/BigDL/tree/main/python/friesian) and
+Intel® Recsys Toolkit is a domain-specific submodule named Friesian in BigDL focusing on recommendation workloads, visit the BigDL Friesian [GitHub repository](https://github.com/intel-analytics/BigDL/tree/main/python/friesian) and
 [documentation page](https://bigdl.readthedocs.io/en/latest/doc/Friesian/index.html) for more details.
 
 ## Hardware Requirements
 
-Intel® Recsys Toolkit and the workflow example shown below could be run widely on Intel® Xeon® series processors.
+Intel® Recsys Toolkit and the example workflow shown below could run widely on Intel® Xeon® series processors.
 
 || Recommended Hardware         |
 |---| ---------------------------- |
@@ -55,7 +55,7 @@ You are highly recommended to use the toolkit under the following system and sof
 
 ### 2. Download the Toolkit Repository
 
-Create a working directory for the workflow of Intel® Recsys Toolkit and clone the [Main
+Create a working directory for the example workflow of Intel® Recsys Toolkit and clone the [Main
 Repository](https://github.com/intel-analytics/BigDL) repository into your working
 directory. Intel® Recsys Toolkit is included in the BigDL project and
 this step downloads the example scripts in BigDL to demonstrate the toolkit.
@@ -130,7 +130,7 @@ system. For running the training workflow with a provided Docker image, see the 
 **a. Set Up System Software**
 
 Our examples use the ``conda`` package and environment on your local computer.
-If you don't already have ``conda`` installed, see the [Conda Linux installation
+If you don't have ``conda`` installed, see the [Conda Linux installation
 instructions](https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html).
 
 **b. Install Packages in Conda Environment**
@@ -163,7 +163,7 @@ python generate_dummy_data.py 100000 recsys_data/
 
 ### 2. Run Training Workflow
 
-The training workflow of the toolkit will preprocess the dataset, train the Wide & Deep Learning model (for ranking) and two-tower model (for embeddings) with the processed data.
+The training workflow of Intel® Recsys Toolkit will preprocess the dataset, train the Wide & Deep Learning model (for ranking) and two-tower model (for embeddings) with the processed data.
 
 Use these commands to run the training workflow:
 ```
@@ -190,7 +190,7 @@ python train_2tower.py \
     --executor_cores 8 \
     --executor_memory 6g \
     --data_dir ../wnd/recsys2021/recsys_data/preprocessed \
-    --model_dir ../wnd/recsys2021/recsys_2tower \
+    --model_dir recsys_2tower \
     --batch_size 8000
 
 python predict_2tower.py \
@@ -198,17 +198,19 @@ python predict_2tower.py \
     --executor_cores 8 \
     --executor_memory 6g \
     --data_dir ../wnd/recsys2021/recsys_data/preprocessed \
-    --model_dir ../wnd/recsys2021/recsys_2tower
+    --model_dir ../wnd/recsys2021/recsys_2tower \
+    --batch_size 8000
 ```
 
 **Expected Training Workflow Output**
 
 Check out the processed data and saved models after the training:
 ```
+ll recsys_2tower
+
 cd ../wnd/recsys2021
 ll recsys_data/preprocessed
 ll recsys_wnd
-ll recsys_2tower
 ```
 Check out the logs of the console for training results:
 
@@ -234,11 +236,11 @@ Training time is:  53.32298707962036
 
 ### Run Online Serving Pipeline Using Docker
 
-After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of the toolkit.
+After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of Intel® Recsys Toolkit.
 
-You are highly recommended to run the online serving pipeline using our provided Docker image.
+You are highly recommended to run the online serving pipeline using our provided Docker image as instructed in this section.
 
-Note that we have already prepared scripts to easily launch the Docker containers for online serving. You need to run the following steps on bare metal to start the online services. If you run the training pipeline in the Docker image, first type `Ctrl+D` or `exit` to exit the container and go back to your development system.
+Note that we have already prepared scripts to easily launch the Docker containers for online serving. You need to run the following steps on **bare metal** to start the services. If you run the training pipeline in the Docker image, first type `Ctrl+D` or `exit` to exit the container and go back to your development system.
 
 
 **a. Set Up Docker Image**
@@ -250,7 +252,7 @@ docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```
 
 
-**b. Download & install [redis](https://redis.io/download/#redis-downloads)**
+**b. Download & install redis**
 
 ```bash
 wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
@@ -272,26 +274,24 @@ cd scala/friesian/
 
 **d. Run Workflow**
 
-1. Flush all key-values in the redis:
+1. Flush all the key-values in the redis and check the initial redis status:
 ```bash
 redis-cli flushall
-```
 
-2. Check the initial redis status:
-```bash
 redis-cli info keyspace
 ```
+
 Output:
 ```bash
 # Keyspace
 ```
 
-3. Run the following script to launch the nearline pipeline:
+2. Run the following script to launch the nearline pipeline:
 ```bash
 bash scripts/run_nearline.sh
 ```
 
-4. Check the redis-server status:
+3. Check the redis-server status:
 ```bash
 redis-cli info keyspace
 ```
@@ -301,22 +301,22 @@ Output:
 db0:keys=500003,expires=0,avg_ttl=0
 ```
 
-5. Check the existence of the generated [Faiss](https://github.com/facebookresearch/faiss) index for vector search:
+Check the existence of the generated [Faiss](https://github.com/facebookresearch/faiss) index for vector search:
 ```bash
 ls -la item_128.idx
 ```
 
-6. If your environment requires a proxy to access the Internet, unset it before running the online pipeline:
+4. If your environment requires a proxy to access the Internet, unset it before running the online pipeline:
 ```bash
 unset http_proxy https_proxy
 ```
 
-7. Run the following script to launch the online pipeline:
+Run the following script to launch the online pipeline:
 ```bash
 bash scripts/run_online.sh
 ```
 
-8. Check the status of the containers:
+5. Check the status of the containers:
 ```bash
 docker container ls
 ```
@@ -327,8 +327,12 @@ There should be 5 containers running:
 - feature
 - ranking
 
-9. Confirm the application is accessible
+6. Confirm the application is accessible
 ```bash
+# Recommend for user 20
+curl http://localhost:8000/recommender/recommend/20
+
+# Recommend for user 99999
 curl http://localhost:8000/recommender/recommend/99999
 ```
 Output:
@@ -355,7 +359,6 @@ For more information about Intel® Recsys Toolkit or to read about other relevan
 examples, see these guides and software resources:
 
 - More recommendation models and use cases in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
-- Online serving guidance in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
 - To scale the training workflow of the recsys toolkit to Kubernetes clusters: https://bigdl.readthedocs.io/en/latest/doc/Orca/Tutorial/k8s.html
 - To scale the online serving workflow of the recsys toolkit to Kubernetes clusters: https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
