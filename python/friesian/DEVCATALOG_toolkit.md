@@ -154,65 +154,61 @@ This workflow of the toolkit uses the [Twitter Recsys Challenge 2021 dataset](ht
 The original dataset includes 46 million users and 340 million tweets (items). Alternatively, here we provide a script to generate some dummy data for this dataset. In the running command below, you can specify the number of records to generate and the output folder respectively.
 
 ```
-cd apps/wide-deep-recommendation
+cd python/friesian/example/wnd/recsys2021
 mkdir recsys_data
 
 # You can modify the number of records and the output folder when running the script
 python generate_dummy_data.py 100000 recsys_data/
-
-cd ../..
 ```
 
 ### 2. Run Training Workflow
 
-The training workflow of the tooklit will preprocess the dataset, train the Wide & Deep Learning model (for ranking) and two-tower model (for embeddings) with the processed data.
+The training workflow of the toolkit will preprocess the dataset, train the Wide & Deep Learning model (for ranking) and two-tower model (for embeddings) with the processed data.
 
 Use these commands to run the training workflow:
 ```
-python python/friesian/example/wnd/recsys2021/wnd_preprocess_recsys.py \
+python wnd_preprocess_recsys.py \
     --executor_cores 8 \
     --executor_memory 6g \
-    --input_train_folder apps/wide-deep-recommendation/recsys_data/train \
-    --input_test_folder apps/wide-deep-recommendation/recsys_data/test \
-    --output_folder apps/wide-deep-recommendation/recsys_data/preprocessed \
+    --data_dir recsys_data \
     --cross_sizes 600
 
-python python/friesian/example/wnd/recsys2021/wnd_train_recsys.py \
+python wnd_train_recsys.py \
     --backend spark \
     --executor_cores 8 \
     --executor_memory 6g \
-    --data_dir apps/wide-deep-recommendation/recsys_data/preprocessed \
-    --model_dir recsys_wnd/ \
+    --data_dir recsys_data/preprocessed \
+    --model_dir recsys_wnd \
     --batch_size 3200 \
     --epoch 5 \
     --learning_rate 1e-4 \
     --early_stopping 3
 
-cd python/friesian/example/two_tower
+cd ../../two_tower
 python train_2tower.py \
     --backend spark \
     --executor_cores 8 \
     --executor_memory 6g \
-    --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
-    --model_dir recsys_2tower/ \
+    --data_dir ../wnd/recsys2021/recsys_data/preprocessed \
+    --model_dir ../wnd/recsys2021/recsys_2tower \
     --batch_size 8000
 
 python predict_2tower.py \
     --backend spark \
     --executor_cores 8 \
     --executor_memory 6g \
-    --data_dir ../../../../apps/wide-deep-recommendation/recsys_data/preprocessed \
-    --model_dir recsys_2tower/
+    --data_dir ../wnd/recsys2021/recsys_data/preprocessed \
+    --model_dir ../wnd/recsys2021/recsys_2tower
 ```
 
 **Expected Training Workflow Output**
 
 Check out the processed data and saved models after the training:
 ```
-cd /path/to/BigDL
-ll apps/wide-deep-recommendation/recsys_data/preprocessed
-ll recsys_wnd/
-ll python/friesian/example/two_tower/recsys_2tower/
+cd ../wnd/recsys2021
+ll recsys_data/preprocessed
+ll recsys_wnd
+ll recsys_2tower
 ```
 Check out the logs of the console for training results:
 
@@ -259,7 +255,7 @@ docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```bash
 wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
 tar -xzf 7.2-rc1.tar.gz
-cd 7.2-rc1.tar.gz && make
+cd redis-7.2-rc1 && make
 src/redis-server &
 ```
 
@@ -269,8 +265,8 @@ Copy the trained model and processed features to the folder where we run the ser
 
 ```bash
 cd ~/work/BigDL/
-cp -r recsys_wnd scala/friesian/
-cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet scala/friesian/
+cp -r python/friesian/example/wnd/recsys2021/recsys_wnd scala/friesian/
+cp -r python/friesian/example/wnd/recsys2021/recsys_data/preprocessed/*.parquet scala/friesian/
 cd scala/friesian/
 ```
 
@@ -302,7 +298,7 @@ redis-cli info keyspace
 Output:
 ```bash
 # Keyspace
-db0:keys=300003,expires=0,avg_ttl=0
+db0:keys=500003,expires=0,avg_ttl=0
 ```
 
 5. Check the existence of the generated [Faiss](https://github.com/facebookresearch/faiss) index for vector search:
@@ -361,7 +357,7 @@ examples, see these guides and software resources:
 - More recommendation models and use cases in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/python/friesian/example
 - Online serving guidance in the recsys toolkit: https://github.com/intel-analytics/BigDL/tree/main/scala/friesian
 - To scale the training workflow of the recsys toolkit to Kubernetes clusters: https://bigdl.readthedocs.io/en/latest/doc/Orca/Tutorial/k8s.html
-- To scale the online serving workflow of the recsys tooklit to Kubernetes clusters: https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm
+- To scale the online serving workflow of the recsys toolkit to Kubernetes clusters: https://github.com/intel-analytics/BigDL/tree/main/apps/friesian-server-helm
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Azure Machine Learning Documentation](https://learn.microsoft.com/en-us/azure/machine-learning/)
 
