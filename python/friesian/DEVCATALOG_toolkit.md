@@ -68,6 +68,7 @@ cd BigDL
 ```
 
 ### 3. Installation
+You can install Intel® Recsys Toolkit either using our provided [Docker image](#31-install-from-docker) (recommended way) or on [bare metal](#32-install-from-pypi-on-bare-metal) according to your environment and preference.
 
 #### 3.1 Install from Docker
 Follow these instructions to set up and run our provided Docker image.
