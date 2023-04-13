@@ -255,7 +255,7 @@ docker pull intelanalytics/friesian-serving:2.2.0-SNAPSHOT
 ```bash
 wget https://github.com/redis/redis/archive/7.2-rc1.tar.gz
 tar -xzf 7.2-rc1.tar.gz
-cd 7.2-rc1.tar.gz && make
+cd redis-7.2-rc1 && make
 src/redis-server &
 ```
 
@@ -265,8 +265,8 @@ Copy the trained model and processed features to the folder where we run the ser
 
 ```bash
 cd ~/work/BigDL/
-cp -r recsys_wnd scala/friesian/
-cp -r apps/wide-deep-recommendation/recsys_data/preprocessed/*.parquet scala/friesian/
+cp -r python/friesian/example/wnd/recsys2021/recsys_wnd scala/friesian/
+cp -r python/friesian/example/wnd/recsys2021/recsys_data/preprocessed/*.parquet scala/friesian/
 cd scala/friesian/
 ```
 
@@ -298,7 +298,7 @@ redis-cli info keyspace
 Output:
 ```bash
 # Keyspace
-db0:keys=300003,expires=0,avg_ttl=0
+db0:keys=500003,expires=0,avg_ttl=0
 ```
 
 5. Check the existence of the generated [Faiss](https://github.com/facebookresearch/faiss) index for vector search:
