@@ -235,7 +235,7 @@ Training time is:  53.32298707962036
 ```
 
 
-### Run Online Serving Pipeline Using Docker
+### 3. Run Online Serving Pipeline Using Docker
 
 After completing the training pipeline, you can use the trained model to deploy and test the online serving pipeline of Intel® Recsys Toolkit.
 
