@@ -48,7 +48,7 @@ The architecture above illustrates how BigDL can build end-to-end, distributed a
 ### 1. Prerequisites
 
 You are highly recommended to use the toolkit under the following system and software settings:
-- OS: Linux or Mac
+- OS: Linux (including Ubuntu 18.04/20.04 and CentOS 7) or Mac
 - Python: 3.7, 3.8, 3.9
 
 ### 2. Download the Workflow Repository

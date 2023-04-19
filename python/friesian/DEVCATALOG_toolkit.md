@@ -39,6 +39,7 @@ Intel® Recsys Toolkit and the example workflow shown below could run widely on 
 The architecture above illustrates the main components in Intel® Recsys Toolkit.
 
 - The offline training workflow is implemented based on Spark, Ray and BigDL to efficiently scale the data processing and DNN model training on large Xeon clusters.
+- The nearline workflow loads the features into the key-value store and builds the index for vector search.
 - The online serving workflow is implemented based on gRPC and HTTP, which consists of Recall, Ranking, Feature and Recommender services. The Recall Service integrates Intel® Optimized Faiss to significantly speed up the vector search step.
 
 
@@ -49,7 +50,7 @@ The architecture above illustrates the main components in Intel® Recsys Toolkit
 ### 1. Prerequisites
 
 You are highly recommended to use the toolkit under the following system and software settings:
-- OS: Linux or Mac
+- OS: Linux (including Ubuntu 18.04/20.04 and CentOS 7) or Mac
 - Python: 3.7, 3.8, 3.9
 
 
@@ -96,12 +97,10 @@ Pull the provided Docker image:
 docker pull intelanalytics/bigdl-orca:latest
 ```
 
-If your environment requires a proxy to access the Internet, export your
-development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container in the next step.
-
 **c. Create Docker Container**
 
-Create the Docker container for BigDL using the ``docker run`` command, as shown below:
+Create the Docker container for BigDL using the ``docker run`` command, as shown below. If your environment requires a proxy to access the Internet, export your
+development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
 ```
 docker run -a stdout \
   --env http_proxy=${http_proxy} \
@@ -167,13 +166,17 @@ python generate_dummy_data.py 100000 recsys_data/
 The training workflow of Intel® Recsys Toolkit will preprocess the dataset, train the [Wide & Deep Learning](https://arxiv.org/abs/1606.07792) model (for ranking) and two-tower model (for embeddings) with the processed data.
 
 Use these commands to run the training workflow:
+
+- Data processing:
 ```
 python wnd_preprocess_recsys.py \
     --executor_cores 8 \
     --executor_memory 6g \
     --data_dir recsys_data \
     --cross_sizes 600
-
+```
+- Wide & Deep model training:
+```
 python wnd_train_recsys.py \
     --backend spark \
     --executor_cores 8 \
@@ -184,7 +187,9 @@ python wnd_train_recsys.py \
     --epoch 5 \
     --learning_rate 1e-4 \
     --early_stopping 3
-
+```
+- Two-tower model training:
+```
 cd ../../two_tower
 python train_2tower.py \
     --backend spark \
@@ -193,7 +198,10 @@ python train_2tower.py \
     --data_dir ../wnd/recsys2021/recsys_data/preprocessed \
     --model_dir recsys_2tower \
     --batch_size 8000
+```
 
+- Two-tower model inference for user and item embeddings:
+```
 python predict_2tower.py \
     --backend spark \
     --executor_cores 8 \
@@ -202,6 +210,8 @@ python predict_2tower.py \
     --model_dir recsys_2tower \
     --batch_size 8000
 ```
+In the above commands, `--executor_cores` and `--executor_memory` indicate the number of cores and amount of memory used to run the program.
+You can properly set them according to your environment and resources.
 
 **Expected Training Workflow Output**
 
@@ -223,7 +233,6 @@ Check out the logs of the console for training results:
 25/25 [==============================] - ETA: 0s - loss: 0.2379 - binary_accuracy: 0.9385 - binary_crossentropy: 0.2379 - auc: 0.5635 - precision: 0.9385 - recall: 1.0000
 25/25 [==============================] - 10s 391ms/step - loss: 0.2379 - binary_accuracy: 0.9385 - binary_crossentropy: 0.2379 - auc: 0.5635 - precision: 0.9385 - recall: 1.0000 - val_loss: 0.6236 - val_binary_accuracy: 0.8491 - val_binary_crossentropy: 0.6236 - val_auc: 0.4988 - val_precision: 0.9342 - val_recall: 0.9021
 (Worker pid=11371) Epoch 4: early stopping
-Training time is:  53.32298707962036
 ```
 - train_2tower.py:
 ```
@@ -322,11 +331,11 @@ bash scripts/run_online.sh
 docker container ls
 ```
 There should be 5 containers running:
-- recommender_http
-- recall
-- feature_recall
-- feature
-- ranking
+- `recommender_http`: The recommender service to handle requests.
+- `recall`: The recall service for vector search.
+- `feature_recall`: The feature service for embeddings.
+- `feature`: The feature service for user and item features.
+- `ranking`: The ranking service for Wide & Deep inference.
 
 6. Confirm the application is accessible
 ```bash
