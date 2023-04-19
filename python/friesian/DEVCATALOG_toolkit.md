@@ -335,7 +335,7 @@ There should be 5 containers running:
 - `recall`: The recall service for vector search.
 - `feature_recall`: The feature service for embeddings.
 - `feature`: The feature service for user and item features.
-- `ranking`: The ranking service for Wide & Deep inference.
+- `ranking`: The ranking service for model inference.
 
 6. Confirm the application is accessible
 ```bash

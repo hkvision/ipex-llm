@@ -33,7 +33,7 @@ BigDL and the workflow example shown below could run widely on Intel® Xeon® se
 
 ## How it Works
 
-<img src="./bigdl-workflow.png" width="80%" />
+<img src="https://github.com/intel-analytics/BigDL/blob/main/docs/readthedocs/image/orca-workflow.png" width="80%" />
 
 The architecture above illustrates how BigDL can build end-to-end, distributed and in-memory pipelines on Intel® Xeon clusters.
 
@@ -92,12 +92,10 @@ Pull the provided Docker image:
 docker pull intelanalytics/bigdl-orca:latest
 ```
 
-If your environment requires a proxy to access the Internet, export your
-development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container in the next step.
-
 **c. Create Docker Container**
 
-Create the Docker container for BigDL using the ``docker run`` command, as shown below:
+Create the Docker container for BigDL using the ``docker run`` command, as shown below. If your environment requires a proxy to access the Internet, export your
+development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
 ```
 docker run -a stdout \
   --env http_proxy=${http_proxy} \
@@ -156,12 +154,13 @@ unzip ml-100k.zip
 
 
 ### 2. Run Workflow
-The workflow will perform distributed training and inference of the [Neural Collaborative Filtering](https://arxiv.org/abs/1708.05031) model. Use these commands to run the workflow:
+The workflow uses Spark DataFrame to process the movielens data and defines the [Neural Collaborative Filtering](https://arxiv.org/abs/1708.05031) model in TensorFlow. Use these commands to run the workflow:
+- Distributed training:
 ```
-# Distributed training
 python tf_train_spark_dataframe.py --dataset ml-100k
-
-# Distributed inference
+```
+- Distributed inference:
+```
 python tf_predict_spark_dataframe.py --dataset ml-100k
 ```
 
