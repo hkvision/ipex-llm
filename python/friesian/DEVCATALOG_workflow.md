@@ -98,12 +98,13 @@ Create the Docker container for BigDL using the ``docker run`` command, as shown
 development system's proxy settings to the Docker environment by adding `--env http_proxy=${http_proxy}` when you create the docker container.
 ```
 docker run -a stdout \
+  --name bigdl-workflow \
   --env http_proxy=${http_proxy} \
   --env https_proxy=${https_proxy} \
   --env no_proxy=${no_proxy} \
   --volume ${PWD}:/workspace \
   --workdir /workspace \
-  --privileged --init -it --rm \
+  --privileged --init -it \
   intelanalytics/bigdl-orca:latest \
   bash
 ```
@@ -112,7 +113,7 @@ docker run -a stdout \
 
 Run these commands to install additional software used for the workflow in the Docker container:
 ```
-docker pip install tensorflow==2.9.0
+pip install tensorflow==2.9.0
 ```
 
 
