@@ -112,7 +112,7 @@ docker run -a stdout \
 
 Run these commands to install additional software used for the workflow in the Docker container:
 ```
-pip install tensorflow==2.9.0
+docker pip install tensorflow==2.9.0
 ```
 
 
