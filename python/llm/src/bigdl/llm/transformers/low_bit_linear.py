@@ -62,6 +62,7 @@ TORCH_LINEAR_THRESHOLD = 96
 SYM_INT4 = ggml_tensor_qtype["sym_int4"]
 SYM_INT8 = ggml_tensor_qtype["sym_int8"]
 NF4 = ggml_tensor_qtype["nf4"]
+xx = 0
 
 
 def ggml_convert_qtype(tensor: torch.Tensor, qtype: int,
@@ -328,6 +329,9 @@ class LowBitLinear(nn.Linear):
         self.conver_to_half = conver_to_half
 
     def forward(self, x: torch.Tensor):
+        global xx
+        xx += 1
+        print(xx)
         if self.bias is not None and self.bias.dtype != x.dtype:
             self.bias.data = self.bias.data.to(x.dtype)
 
@@ -336,6 +340,8 @@ class LowBitLinear(nn.Linear):
 
         x0 = self.weight.data
 
+        import datetime
+        time_str = str(datetime.datetime.now()).split(" ")[-1].replace(".", ":")
         if x0.device.type == "xpu":
             # GPU logic
             try:
@@ -376,4 +382,11 @@ class LowBitLinear(nn.Linear):
                 if self.bias is not None:
                     result += self.bias
 
+        # print(result)
+        # if xx == 100:
+        #     import numpy as np
+        #     np.save(
+        #         "/home/kai/BigDL/python/llm/example/transformers/transformers_int4/bark/linear_cpu/input-{}.npy".format(
+        #             xx), x.numpy())
+        #     np.save("/home/kai/BigDL/python/llm/example/transformers/transformers_int4/bark/linear_cpu/output-{}.npy".format(xx), result.numpy())
         return result.to(x.dtype)
