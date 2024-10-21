@@ -111,26 +111,6 @@ class LowBitLlamaMultiDecoderlayer(LLMBaseNNFactory):
             attention_mask = self.create_input_op((self.batch_size, 1, self.seq_len, self.seq_len))
 
         position_ids = self.create_input_op((self.batch_size, self.seq_len))
-        past_keys = []
-        past_values = []
-        if mode == "decode":
-            for i in range(num_layers):
-                past_key = self.create_cache_op(
-                    (self.batch_size, self.num_key_value_heads, self.max_seq_len, self.head_dim)
-                )
-                if transpose_value:
-                    past_value = self.create_cache_op(
-                        (self.batch_size, self.num_key_value_heads, self.head_dim, self.max_seq_len)
-                    )
-                else:
-                    past_value = self.create_cache_op(
-                        (self.batch_size, self.num_key_value_heads, self.max_seq_len, self.head_dim)
-                    )
-                past_keys.append(past_key)
-                past_values.append(past_value)
-        else:
-            past_keys = [None] * num_layers
-            past_values = [None] * num_layers
 
         if input_layernorm_weights is None:
             input_layernorm_weights = []
@@ -155,6 +135,27 @@ class LowBitLlamaMultiDecoderlayer(LLMBaseNNFactory):
         else:
             input_layernorm_weights = [self.constant(w) for w in input_layernorm_weights]
             post_attn_layernorm_weights = [self.constant(w) for w in post_attn_layernorm_weights]
+
+        past_keys = []
+        past_values = []
+        if mode == "decode":
+            for i in range(num_layers):
+                past_key = self.create_cache_op(
+                    (self.batch_size, self.num_key_value_heads, self.max_seq_len, self.head_dim)
+                )
+                if transpose_value:
+                    past_value = self.create_cache_op(
+                        (self.batch_size, self.num_key_value_heads, self.head_dim, self.max_seq_len)
+                    )
+                else:
+                    past_value = self.create_cache_op(
+                        (self.batch_size, self.num_key_value_heads, self.max_seq_len, self.head_dim)
+                    )
+                past_keys.append(past_key)
+                past_values.append(past_value)
+        else:
+            past_keys = [None] * num_layers
+            past_values = [None] * num_layers
 
         hidden_states = input
 

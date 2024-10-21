@@ -181,7 +181,7 @@ class _BaseAutoModelClass:
             model.save_low_bit = types.MethodType(save_low_bit, model)
         else:
             from ipex_llm.transformers.npu_models.convert import optimize_llm
-            optimize_llm(model)
+            # optimize_llm(model)
             with torch.no_grad():
                 cls.load_convert(qtype, model, "cpu", modules_to_not_convert, *args, **kwargs)
                 if hasattr(model, "llm"):
