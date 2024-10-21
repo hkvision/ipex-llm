@@ -87,7 +87,7 @@ class LowBitQwenLMHead(LLMBaseNNFactory):
         )
 
         # define outputs
-        hidden_states = self.convert_to_fp16(hidden_states)
+        hidden_states = self.convert_to_fp32(hidden_states)
 
         print("start compiling")
         self.compile()

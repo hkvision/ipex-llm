@@ -133,11 +133,11 @@ class LowBitQwenMultiDecoderlayer(LLMBaseNNFactory):
 
         # Self Attention
         if mode == "decode":
-            attention_mask = self.create_input_op((self.batch_size, 1, 1, self.max_seq_len + 1))
+            attention_mask = self.create_input_op((self.batch_size, 1, 1, self.max_seq_len + 1), dtype=np.int64)
         else:
-            attention_mask = self.create_input_op((self.batch_size, 1, self.seq_len, self.seq_len))
+            attention_mask = self.create_input_op((self.batch_size, 1, self.seq_len, self.seq_len), dtype=np.int64)
 
-        position_ids = self.create_input_op((self.batch_size, self.seq_len))
+        position_ids = self.create_input_op((self.batch_size, self.seq_len), dtype=np.int64)
 
         if input_layernorm_weights is None:
             input_layernorm_weights = []
@@ -508,7 +508,7 @@ class FusedQwenLowBitDecoderlayer(torch.nn.Module):
         seq_len = hidden_states.shape[1]
 
         backend_cls = self.backend_cls_prefill
-        inputs = (hidden_states.to(torch.float16), attention_mask, position_ids)
+        inputs = (hidden_states.to(torch.float16), attention_mask, position_ids.to(torch.int64))
         inputs += (self.layer_norm_0, self.layer_norm_1)
         inputs += (self.q_bias, self.k_bias, self.v_bias)
         hidden_states, past_key, past_value = run_model(
@@ -663,9 +663,9 @@ def run_decode(
                 causal_mask[:, :, :, -1] = torch.finfo(torch.float16).min
                 pad_mask = (0, pad_len)
                 padded_causal_mask = F.pad(
-                    causal_mask.to(torch.float16), pad_mask, value=torch.finfo(torch.float16).min
+                    causal_mask.to(torch.int64), pad_mask, value=torch.iinfo(torch.int64).min
                 )
-                padded_causal_mask[:, :, :, -1] = 0.0
+                padded_causal_mask[:, :, :, -1] = 0
                 dist.recv(hidden_states, src=rank - 1)
                 layer_outputs = multi_decoder(
                     hidden_states,
@@ -927,9 +927,9 @@ class PrefillRunner:
         hidden_states = F.pad(hidden_states.to(torch.float16), (0, 0, 0, pad_len), value=0.0)
         position_ids = F.pad(position_ids, (0, pad_len), value=0)
         attention_mask = F.pad(
-            attention_mask.to(torch.float16),
+            attention_mask.to(torch.int64),
             (0, pad_len, 0, pad_len),
-            value=torch.finfo(torch.float16).min,
+            value=torch.iinfo(torch.int64).min,
         )
 
         args = (hidden_states, position_ids, attention_mask, past_key_value)
