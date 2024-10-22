@@ -135,12 +135,12 @@ class QwenEmbedding(NNFactory):
 if __name__ == "__main__":
 
     model = AutoModelForCausalLM.from_pretrained(
-        "/home/kai/llm/Qwen2-7B-Instruct",
-        # r"D:\llm-models\Qwen2-7B-Instruct",
+        r"D:\llm-models\Qwen2-7B-Instruct",
         torch_dtype=torch.float16,
         trust_remote_code=True,
         attn_implementation="eager",
         load_in_low_bit="sym_int4",
+        mixed_precision=True
     )
 
     weight_dir = os.path.join(".", "model_layer_weights")
@@ -153,7 +153,7 @@ if __name__ == "__main__":
         head_dim = model.model.layers[layer_idx].self_attn.head_dim
         rms_norm_eps = model.config.rms_norm_eps
         intermediate_size = model.config.intermediate_size
-        layer_weights = []
+        # layer_weights = []
         # input_layer_norm_weights = []
         # post_attn_layernorm_weights = []
         # q_biases = []
@@ -164,13 +164,14 @@ if __name__ == "__main__":
         mlp_layer = curr_layer.mlp
 
         weights = [
-            (attn_layer.q_proj.weight, attn_layer.q_proj.scale),
-            (attn_layer.k_proj.weight, attn_layer.k_proj.scale),
-            (attn_layer.v_proj.weight, attn_layer.v_proj.scale),
-            (attn_layer.o_proj.weight, attn_layer.o_proj.scale),
-            (mlp_layer.gate_proj.weight, mlp_layer.gate_proj.scale),
-            (mlp_layer.up_proj.weight, mlp_layer.up_proj.scale),
-            (mlp_layer.down_proj.weight, mlp_layer.down_proj.scale),
+            attn_layer.q_proj.weight, attn_layer.q_proj.scale,
+            attn_layer.k_proj.weight, attn_layer.k_proj.scale,
+            attn_layer.v_proj.weight, attn_layer.v_proj.scale,
+            attn_layer.o_proj.weight, attn_layer.o_proj.scale,
+            mlp_layer.gate_proj.weight, mlp_layer.gate_proj.scale,
+            mlp_layer.up_proj.weight, mlp_layer.up_proj.scale,
+            mlp_layer.down_proj_0.weight, mlp_layer.down_proj_0.scale,
+            mlp_layer.down_proj_1.weight, mlp_layer.down_proj_1.scale,
         ]
 
         q_bias = attn_layer.q_proj.bias.to(torch.float16)   # Seems already fp16
@@ -181,14 +182,14 @@ if __name__ == "__main__":
         layer_norm_0 = curr_layer.input_layernorm.weight.to(torch.float16)
         layer_norm_1 = curr_layer.post_attention_layernorm.weight.to(torch.float16)
 
-        layer_weights.extend(weights)
+        # layer_weights.extend(weights)
         # q_biases.append(q_bias)
         # k_biases.append(k_bias)
         # v_biases.append(v_bias)
         # input_layer_norm_weights.append(layer_norm_0)
         # post_attn_layernorm_weights.append(layer_norm_1)
 
-        parameters = layer_weights
+        # parameters = layer_weights
         # op_parameters = []
         # for w in parameters:
         #     if isinstance(w, tuple):  # from QuantizedLinear
@@ -196,10 +197,10 @@ if __name__ == "__main__":
         #     else:
         #         op_parameters.append(w.to(torch.float16).numpy())
         # op_id = str(uuid.uuid4())
-        if isinstance(parameters[0], tuple):
-            np_dtype = np.int8 if parameters[0][0].dtype == torch.int8 else np.uint8    
-        else:  # FP16 Linear
-            np_dtype = np.float16
+        # if isinstance(parameters[0], tuple):
+        np_dtype = np.int8 if weights[0].dtype == torch.int8 else np.uint8
+        # else:  # FP16 Linear
+        #     np_dtype = np.float16
 
         if layer_idx == 0:
             single_decoder = LowBitQwenMultiDecoderlayer(
@@ -231,15 +232,7 @@ if __name__ == "__main__":
             # single_decoder.set_weights(op_id, op_parameters[0 * 7: 1 * 7])
 
         # save weights bins files
-        weight_numpy = [
-            attn_layer.q_proj.weight.data.numpy(), attn_layer.q_proj.scale.data.numpy(),
-            attn_layer.k_proj.weight.data.numpy(), attn_layer.k_proj.scale.data.numpy(),
-            attn_layer.v_proj.weight.data.numpy(), attn_layer.v_proj.scale.data.numpy(),
-            attn_layer.o_proj.weight.data.numpy(), attn_layer.o_proj.scale.data.numpy(),
-            mlp_layer.gate_proj.weight.data.numpy(), mlp_layer.gate_proj.scale.data.numpy(),
-            mlp_layer.up_proj.weight.data.numpy(), mlp_layer.up_proj.scale.data.numpy(),
-            mlp_layer.down_proj.weight.data.numpy(), mlp_layer.down_proj.scale.data.numpy(),
-        ]
+        weight_numpy = [weight.data.numpy() for weight in weights]
 
         # 0, 1, 2 are input_embed/attention_mask/position_id
         # 3, 4 are layernorms
@@ -261,7 +254,7 @@ if __name__ == "__main__":
             weight.tofile(bin_file)
 
     model_norm = model.model.norm
-    lm_head = model.lm_head
+    lm_head = model.lm_head.lm_heads[0]   # After adding optimize_pre and mixed_precision, becomes SlicedLMHead with only one slice
 
     num_heads = model.model.layers[0].self_attn.num_heads
     num_key_value_heads = model.model.layers[0].self_attn.num_key_value_heads
