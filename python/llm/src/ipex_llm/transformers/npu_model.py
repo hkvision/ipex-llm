@@ -181,7 +181,9 @@ class _BaseAutoModelClass:
             model.save_low_bit = types.MethodType(save_low_bit, model)
         else:
             from ipex_llm.transformers.npu_models.convert_mp import optimize_llm, optimize_llm_pre
-            from ipex_llm.transformers.npu_models.convert import optimize_llm
+            # from ipex_llm.transformers.npu_models.convert import optimize_llm
+            # from ipex_llm.transformers.npu_models.qwen2_mp import split_mlp_down_proj
+            # model.apply(split_mlp_down_proj)
             optimize_llm_pre(model, qtype, mixed_precision)
             # optimize_llm(model)
             with torch.no_grad():

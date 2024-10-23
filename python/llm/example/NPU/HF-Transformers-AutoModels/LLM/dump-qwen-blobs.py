@@ -13,6 +13,10 @@ from intel_npu_acceleration_library.backend.factory import NNFactory
 
 def update_names_of_IR_and_export_blob(xml_path, new_ir_path=None, blob_path=None):
     core = Core()
+    core.set_property("NPU",
+                      {"NPU_COMPILATION_MODE_PARAMS": "compute-layers-with-higher-precision=Sqrt,Power,ReduceMean,Add"})
+    core.set_property("NPU", {"PERFORMANCE_HINT": "LATENCY"})
+
     model = core.read_model(xml_path)
     inputs = model.inputs
     for idx, input in enumerate(inputs):
