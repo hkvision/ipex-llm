@@ -104,6 +104,7 @@ class QwenEmbedding(NNFactory):
         embedding_dim,
         padding_idx,
         dtype,  # fp16
+        weight_np,
         device: str = "NPU",
     ):
         super().__init__(False, device)
@@ -113,7 +114,8 @@ class QwenEmbedding(NNFactory):
         self.dtype = dtype
 
         # define input
-        weight = self.parameter((vocab_size, embedding_dim))
+        # weight = self.parameter((vocab_size, embedding_dim))
+        weight = self.constant(weight_np)
         input = self.parameter((1, 1), dtype=np.int32)
 
         if padding_idx == -1:
@@ -318,6 +320,7 @@ if __name__ == "__main__":
         embedding_dim=model.config.hidden_size,
         padding_idx=model.config.pad_token_id,
         dtype=np.float16,
+        weight_np=embedding_layer.weight.to(torch.float16).detach().numpy()
     )
 
     # save IR for current embedding
@@ -329,9 +332,9 @@ if __name__ == "__main__":
     update_names_of_IR_and_export_blob(xml_path, new_ir_path, blob_path)
 
     # save weights bins files
-    weight_numpy = [
-        embedding_layer.weight.to(torch.float16).detach().numpy()
-    ]
-    for idx, weight in enumerate(weight_numpy):
-        bin_file = os.path.join(weight_dir, f"model_embedding_input_{0+idx}.bin")
-        weight.tofile(bin_file)
+    # weight_numpy = [
+    #     embedding_layer.weight.to(torch.float16).detach().numpy()
+    # ]
+    # for idx, weight in enumerate(weight_numpy):
+    #     bin_file = os.path.join(weight_dir, f"model_embedding_input_{0+idx}.bin")
+    #     weight.tofile(bin_file)
