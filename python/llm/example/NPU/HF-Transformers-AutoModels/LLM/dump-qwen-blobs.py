@@ -223,7 +223,7 @@ if __name__ == "__main__":
                 rms_norm_eps=rms_norm_eps,
                 intermediate_size=intermediate_size,
                 mode="decode",
-                transpose_value=False,
+                transpose_value=True,
                 dtype=np_dtype,
             )
             # save IR for current Decoder Layer 0
