@@ -91,19 +91,22 @@ if __name__ == "__main__":
 
     print("-" * 80)
     print("done")
-    messages = [{"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": args.prompt}]
-    text = tokenizer.apply_chat_template(messages,
-                                         tokenize=False,
-                                         add_generation_prompt=True)
+    from ipex_llm.utils import BenchmarkWrapper
+    model = BenchmarkWrapper(model, do_print=True)
+    # messages = [{"role": "system", "content": "You are a helpful assistant."},
+    #             {"role": "user", "content": args.prompt}]
+    # text = tokenizer.apply_chat_template(messages,
+    #                                      tokenize=False,
+    #                                      add_generation_prompt=True)
     with torch.inference_mode():
         print("finish to load")
         for i in range(3):
-            _input_ids = tokenizer([text], return_tensors="pt").input_ids
+            _input_ids = tokenizer.encode(args.prompt, return_tensors="pt")
+            # _input_ids = tokenizer([text], return_tensors="pt").input_ids
             print("input length:", len(_input_ids[0]))
             st = time.time()
             output = model.generate(
-                _input_ids, num_beams=1, do_sample=False, max_new_tokens=args.n_predict
+                _input_ids, num_beams=1, do_sample=False, max_new_tokens=200, repetition_penalty=1
             )
             end = time.time()
             print(f"Inference time: {end-st} s")

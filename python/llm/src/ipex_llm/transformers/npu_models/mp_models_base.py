@@ -53,6 +53,8 @@ def run_model(
     # Reshape input
     input_dtype = x[0].dtype
     x_np = [set_contiguous(elem).to(torch.float16).numpy() for elem in x]
+    x_np[1] = x_np[1].astype(np.int64)
+    x_np[2] = x_np[2].astype(np.int64)
     op_args = []
     op_args_flatten = []
     for w in weights:
@@ -206,6 +208,7 @@ class LLMBaseNNFactory(NNFactory):
         attn_weight = self.matmul(query_states, key_states, False, True) / (
             math.sqrt(head_dim)
         )
+        attention_mask = self.convert_to_fp16(attention_mask)
         attn_weight = self.eltwise_add(attn_weight, attention_mask)
         attn_weight = self.convert_to_fp32(attn_weight)
         attn_weight = self.softmax(attn_weight, -1)
@@ -264,8 +267,8 @@ class LLMBaseNNFactory(NNFactory):
     def apply_rotary_pos_emb(self, *, q, k, cos, sin, position_ids,
                              num_heads, seq_len, head_dim):
         position_ids = self.squeeze(position_ids)
-        cos = self.gather(cos, self.convert_to_int32(position_ids), self.constant(1), 0)
-        sin = self.gather(sin, self.convert_to_int32(position_ids), self.constant(1), 0)
+        cos = self.gather(cos, position_ids, self.constant(1), 0)
+        sin = self.gather(sin, position_ids, self.constant(1), 0)
         cos = self.unsqueeze(cos, [1])
         sin = self.unsqueeze(sin, [1])
 
@@ -326,13 +329,13 @@ class LLMBaseNNFactory(NNFactory):
         self.cache_parameter_ops.append(op)
         return op
 
-    def create_input_op(self, shape):
+    def create_input_op(self, shape, dtype=np.float16):
         invalidInputError(len(self.cache_parameter_ops) == 0,
                           "create_input_op should be called before any create_cache_op")
         invalidInputError(len(self.linear_ops) == 0,
                           "create_input_op should be called before any linear op")
 
-        op = super().parameter(shape)
+        op = super().parameter(shape, dtype)
         self.input_ops.append(op)
         return op
 
@@ -401,6 +404,8 @@ class LLMBaseNNFactory(NNFactory):
     @staticmethod
     def run_decoders(inputs, decoders, models_ptr=None):
         x_np = [elem.to(torch.float16).numpy() for elem in inputs]
+        x_np[1] = x_np[1].astype(np.int64)
+        x_np[2] = x_np[2].astype(np.int64)
 
         num_decoders = len(decoders)
         num_inputs = len(x_np)
